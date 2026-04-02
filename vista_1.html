@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Digital Atelier CAD - Studio Professional Edition</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed": "#001a41",
+              "on-primary-container": "#fefcff",
+              "on-tertiary-fixed": "#351000",
+              "surface-tint": "#005bc0",
+              "background": "#f7f9fb",
+              "on-primary": "#ffffff",
+              "primary-container": "#0070ea",
+              "on-error-container": "#93000a",
+              "primary": "#0059bb",
+              "secondary-container": "#dde3eb",
+              "on-surface-variant": "#414754",
+              "secondary-fixed-dim": "#c1c7cf",
+              "surface": "#f7f9fb",
+              "on-background": "#191c1e",
+              "tertiary-container": "#c64f00",
+              "on-error": "#ffffff",
+              "tertiary": "#9e3d00",
+              "on-tertiary": "#ffffff",
+              "surface-container-high": "#e6e8ea",
+              "surface-bright": "#f7f9fb",
+              "secondary-fixed": "#dde3eb",
+              "surface-container-highest": "#e0e3e5",
+              "on-tertiary-fixed-variant": "#7c2e00",
+              "surface-container-lowest": "#ffffff",
+              "outline-variant": "#c1c6d7",
+              "surface-container": "#eceef0",
+              "surface-container-low": "#f2f4f6",
+              "on-secondary-fixed-variant": "#41474e",
+              "surface-dim": "#d8dadc",
+              "error-container": "#ffdad6",
+              "inverse-surface": "#2d3133",
+              "error": "#ba1a1a",
+              "on-surface": "#191c1e",
+              "primary-fixed": "#d8e2ff",
+              "primary-fixed-dim": "#adc7ff",
+              "outline": "#717786",
+              "tertiary-fixed-dim": "#ffb695",
+              "on-tertiary-container": "#fffbff",
+              "inverse-on-surface": "#eff1f3",
+              "on-secondary": "#ffffff",
+              "secondary": "#595f66",
+              "surface-variant": "#e0e3e5",
+              "inverse-primary": "#adc7ff",
+              "on-secondary-container": "#5f656c",
+              "tertiary-fixed": "#ffdbcc",
+              "on-secondary-fixed": "#161c22",
+              "on-primary-fixed-variant": "#004493"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pattern-canvas {
+            background-image: radial-gradient(#c1c6d7 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background h-screen flex flex-col overflow-hidden">
+<!-- Top Navigation (Executing JSON Spec) -->
+<header class="flex justify-between items-center px-6 h-14 w-full z-50 border-b border-opacity-20 border-[#c4c7ca] bg-[#f7f9fb] dark:bg-[#121212] font-['Plus_Jakarta_Sans'] text-sm tracking-tight">
+<div class="flex items-center gap-8">
+<span class="text-lg font-bold tracking-tighter text-[#191c1e] dark:text-[#e0e3e5]">Digital Atelier CAD</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-[#007BFF] border-b-2 border-[#007BFF] py-4 transition-colors" href="#">Workspace</a>
+<a class="text-[#44474a] dark:text-[#c4c7ca] hover:text-[#007BFF] py-4 transition-colors" href="#">Library</a>
+<a class="text-[#44474a] dark:text-[#c4c7ca] hover:text-[#007BFF] py-4 transition-colors" href="#">Community</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] uppercase tracking-widest font-bold text-primary px-2 py-1 bg-primary-fixed rounded">Studio Professional Edition</span>
+<button class="px-4 py-1.5 rounded bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-all duration-150 scale-95">Sign In</button>
+</div>
+</header>
+<main class="flex-1 flex overflow-hidden">
+<!-- Left Panel: Configuration (SideNavBar Logic) -->
+<aside class="w-80 bg-surface-container-low flex flex-col border-r border-outline-variant/10 overflow-y-auto no-scrollbar">
+<div class="p-6 space-y-8">
+<!-- Section: Garment Type -->
+<section>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-3">Garment Configuration</label>
+<div class="space-y-4">
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border-none text-sm font-medium py-3 px-4 rounded focus:ring-1 focus:ring-primary appearance-none">
+<option>A-Line Skirt</option>
+<option>Tailored Blazer</option>
+<option>Slim-fit Trouser</option>
+<option>Oversized Hoodie</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 pointer-events-none text-outline">expand_more</span>
+</div>
+</div>
+</section>
+<!-- Section: Fabric Selection (Bento Cards) -->
+<section>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-3">Material Profile</label>
+<div class="grid grid-cols-2 gap-2">
+<button class="group relative aspect-square rounded-lg overflow-hidden border-2 border-primary ring-2 ring-primary/20">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="close-up macro texture of high-quality raw denim fabric indigo blue with visible weave and stitching details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOMzxcjljFlbZBcDsC9hEj7a3TEWt1ZX5OICyPXPD_GBuP4hn3WN2MCzx37hNjI7wPkXjSarrytXidkvXUWAhlhvkDD66drH2pmY6sbUZRd69obx7Js78W7n2jr-AetM-dTnyngkS7o65R5gdiX-4dCTUCiTo-hqMueCAu2a-JnUqv8Z7mTdAgnvukEk5kUPx9iPvDsh9WQnsEaU5_yOmToim0g5KcqmB2v-SEfVdqov-CAf6UX_GLEXsTnZOmjgdeqs2320gXgS59"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent flex items-end p-2">
+<span class="text-[10px] font-bold text-white uppercase">Raw Denim</span>
+</div>
+</button>
+<button class="group relative aspect-square rounded-lg overflow-hidden border border-outline-variant/30 hover:border-primary transition-all">
+<img class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" data-alt="luxurious matte silk crepe fabric texture soft drape neutral charcoal gray editorial fashion photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNAgwg7VR3kfPWvC-C-LCr4ucZNTt-uZKtwpwHI1nDoDU6_Bu-yZvIJ15GJauOkLymyUOnnZrKgrd1bR_A7sF250HKwdy8s1lJlxhX42Muc7uu9YseO3zvSttWRVFJWe2K32bUncQ63wAYLdeAa2E3oHZF7U_ZVWhZpaHU67KH5XBpzDFCw2qPSoOY6-u6QXO-BHuf0tut6nYtbKFtYAxjzlA3tH_MAm62gamH1ONKs3WoMoEEuXdzw1F0hVkYPo4BvS1s9rOo2NYV"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end p-2">
+<span class="text-[10px] font-bold text-white uppercase">Silk Crepe</span>
+</div>
+</button>
+</div>
+</section>
+<!-- Section: Measurements -->
+<section>
+<div class="flex justify-between items-center mb-3">
+<label class="text-[10px] font-bold uppercase tracking-widest text-secondary">Body Measurements (cm)</label>
+<span class="material-symbols-outlined text-sm text-primary">straighten</span>
+</div>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-3 bg-surface-container-lowest rounded group hover:bg-white transition-colors">
+<span class="text-xs font-medium text-on-surface-variant">Waist Circumference</span>
+<input class="w-16 text-right bg-transparent border-none text-sm font-bold text-primary focus:ring-0" type="number" value="72.5"/>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-container-lowest rounded group hover:bg-white transition-colors">
+<span class="text-xs font-medium text-on-surface-variant">Hip Circumference</span>
+<input class="w-16 text-right bg-transparent border-none text-sm font-bold text-primary focus:ring-0" type="number" value="94.0"/>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-container-lowest rounded group hover:bg-white transition-colors">
+<span class="text-xs font-medium text-on-surface-variant">Garment Length</span>
+<input class="w-16 text-right bg-transparent border-none text-sm font-bold text-primary focus:ring-0" type="number" value="65.0"/>
+</div>
+</div>
+</section>
+<!-- Section: Style Notes -->
+<section>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-3">Styling Details</label>
+<textarea class="w-full bg-surface-container-lowest border-none text-xs p-3 rounded focus:ring-1 focus:ring-primary h-24 resize-none" placeholder="Add specific pattern adjustments or seam allowance notes..."></textarea>
+</section>
+</div>
+</aside>
+<!-- Middle Panel: CAD Canvas -->
+<section class="flex-1 relative flex flex-col bg-surface overflow-hidden">
+<!-- Floating Technical Toolbar -->
+<div class="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1.5 bg-white/80 backdrop-blur-md rounded-full shadow-sm z-10 border border-outline-variant/10">
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">zoom_in</span>
+</button>
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">zoom_out</span>
+</button>
+<div class="w-px h-6 bg-outline-variant/30 mx-1"></div>
+<button class="p-2 bg-primary text-white rounded-full transition-colors">
+<span class="material-symbols-outlined text-[20px]">square_foot</span>
+</button>
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">grid_on</span>
+</button>
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">layers</span>
+</button>
+<div class="w-px h-6 bg-outline-variant/30 mx-1"></div>
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+<!-- Pattern Canvas Space -->
+<div class="flex-1 pattern-canvas flex items-center justify-center p-20">
+<div class="relative w-full max-w-2xl aspect-[3/4] border-2 border-primary/40 bg-white/40 rounded shadow-2xl flex items-center justify-center overflow-hidden">
+<!-- Faux CAD Pattern Lines -->
+<svg class="w-full h-full text-primary" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 400 500">
+<path class="stroke-primary/80" d="M50,50 L350,50 L380,250 L320,450 L80,450 L20,250 Z" stroke-dasharray="4 4"></path>
+<path d="M50,50 Q200,30 350,50 L370,150 Q200,160 30,150 Z" fill="rgba(0, 89, 187, 0.05)"></path>
+<line stroke="#44474a" stroke-dasharray="2 2" x1="200" x2="200" y1="50" y2="450"></line>
+<text class="text-[8px] fill-secondary font-mono" x="205" y="250">GRAIN LINE</text>
+<circle cx="50" cy="50" fill="currentColor" r="3"></circle>
+<circle cx="350" cy="50" fill="currentColor" r="3"></circle>
+<!-- Measurement Callouts -->
+<rect fill="white" height="12" rx="2" stroke="currentColor" stroke-width="0.5" width="40" x="180" y="45"></rect>
+<text class="text-[8px] fill-primary font-bold" x="185" y="54">72.5cm</text>
+</svg>
+<!-- Floating Coordinates -->
+<div class="absolute bottom-4 right-4 bg-black/5 px-2 py-1 rounded text-[10px] font-mono text-outline">
+                        X: 24.52 Y: 88.11
+                    </div>
+</div>
+</div>
+<!-- Footer Stats (Executing Footer Spec Logic) -->
+<footer class="px-6 py-2 flex justify-between items-center bg-surface-container-low border-t border-outline-variant/10 text-[10px] uppercase tracking-widest text-outline">
+<div class="flex gap-4">
+<span class="font-bold text-primary">v1.0.4-PRO</span>
+<span>Project: A-Line_Spring_24</span>
+</div>
+<div class="flex gap-4">
+<a class="hover:text-primary transition-colors" href="#">Documentation</a>
+<a class="hover:text-primary transition-colors" href="#">API Status: Healthy</a>
+</div>
+</footer>
+</section>
+<!-- Right Panel: Actions & Export -->
+<aside class="w-72 bg-surface-container flex flex-col border-l border-outline-variant/10">
+<!-- Header Workspace Info -->
+<div class="p-6 border-b border-outline-variant/20">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-white font-black text-lg">V</div>
+<div>
+<h3 class="text-sm font-bold text-on-surface">Vellum Workspace</h3>
+<p class="text-[10px] text-secondary font-medium uppercase tracking-tight">Active Project</p>
+</div>
+</div>
+<div class="flex items-center gap-2 text-xs font-medium text-on-surface-variant bg-surface-container-high p-2 rounded">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                    Last saved 2m ago
+                </div>
+</div>
+<!-- Primary Actions -->
+<div class="p-6 flex-1 space-y-6">
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-3">Export Configuration</label>
+<div class="bg-surface-container-lowest rounded-lg p-4 space-y-4 shadow-sm border border-outline-variant/10">
+<div class="relative">
+<select class="w-full bg-surface-container-high border-none text-xs font-bold py-2 px-3 rounded appearance-none">
+<option>DXF (Industrial Standard)</option>
+<option>SVG (Vector Graphics)</option>
+<option>PDF (Print Scale 1:1)</option>
+<option>AAMA/ANSI CAD</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-2 text-sm text-outline">expand_more</span>
+</div>
+<button class="w-full py-4 bg-gradient-to-br from-primary to-primary-container text-white text-xs font-bold uppercase tracking-widest rounded-lg flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-lg">download</span>
+                            Download Pattern
+                        </button>
+</div>
+</div>
+<div class="bg-primary/5 rounded-xl p-4 border border-primary/10">
+<h4 class="text-xs font-bold text-primary mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+                        Pro Feature: Nesting
+                    </h4>
+<p class="text-[10px] text-on-surface-variant leading-relaxed mb-4">Automatically optimize pattern layout on fabric to minimize waste by up to 22%.</p>
+<button class="w-full py-2.5 bg-white text-primary border border-primary/20 text-[10px] font-black uppercase tracking-wider rounded hover:bg-primary hover:text-white transition-all">Run Nesting Engine</button>
+</div>
+</div>
+<!-- Utility Footer -->
+<div class="p-6 mt-auto border-t border-outline-variant/20 space-y-4 bg-surface-container-low">
+<div class="flex items-center justify-between p-1.5 bg-surface-container-high rounded-full">
+<button class="flex-1 flex items-center justify-center py-2 px-4 rounded-full bg-white shadow-sm text-primary transition-all">
+<span class="material-symbols-outlined text-[18px] mr-2">light_mode</span>
+<span class="text-[10px] font-bold uppercase">Light</span>
+</button>
+<button class="flex-1 flex items-center justify-center py-2 px-4 rounded-full text-secondary hover:text-on-surface transition-all">
+<span class="material-symbols-outlined text-[18px] mr-2">dark_mode</span>
+<span class="text-[10px] font-bold uppercase">Dark</span>
+</button>
+</div>
+<button class="w-full py-3 bg-on-surface text-surface text-[10px] font-black uppercase tracking-[0.2em] rounded flex items-center justify-center gap-2 hover:bg-black transition-colors">
+                    Upgrade Plan
+                </button>
+</div>
+</aside>
+</main>
+<!-- Contextual Measurement Overlay (Glassmorphism card) -->
+<div class="fixed bottom-20 right-80 mr-8 w-48 bg-white/80 backdrop-blur-xl rounded-lg shadow-2xl p-4 border border-white/50 z-20 pointer-events-none">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="text-[10px] font-bold text-secondary uppercase tracking-wider">Live Specs</span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between">
+<span class="text-[10px] text-on-surface-variant">Total Perimeter</span>
+<span class="text-[10px] font-bold">142.4 cm</span>
+</div>
+<div class="flex justify-between">
+<span class="text-[10px] text-on-surface-variant">Fabric Area</span>
+<span class="text-[10px] font-bold">0.82 m²</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high rounded-full mt-2 overflow-hidden">
+<div class="h-full bg-primary w-2/3"></div>
+</div>
+</div>
+</div>
+</body></html>
