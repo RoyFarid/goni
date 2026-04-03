@@ -7,29 +7,25 @@ import { profilesApi, patternsApi } from "../api/client";
  * Props:
  *   user          – current authenticated user (reload profiles when changes)
  *   templateId    – currently selected template
- *   onCompute(patternData, profileId) – called when user clicks "Generar Molde"
+ *   onCompute(patternData, profileId) - called when user clicks "Generar Molde"
  */
-export default function LeftPanel({ user, templateId, onCompute }) {
+export default function LeftPanel({ user, templates, templateId, onTemplateChange, selectedProfileId, setProfileId, onCompute }) {
   const [profiles, setProfiles] = useState([]);
-  const [selectedProfileId, setSelectedProfileId] = useState(null);
-  const [newProfileName, setNewProfileName] = useState("");
   const [requiredKeys, setRequiredKeys] = useState([]);
   const [measurements, setMeasurements] = useState({}); // key → value string
   const [status, setStatus] = useState(null); // {type:'ok'|'err', msg}
   const [loading, setLoading] = useState(false);
-  const [creating, setCreating] = useState(false);
 
-  // Load profiles whenever the logged-in user changes (fixes: profiles not shown after login)
+  // Load profiles whenever the logged-in user changes
   useEffect(() => {
     if (!user) {
       setProfiles([]);
-      setSelectedProfileId(null);
       return;
     }
     profilesApi.list().then((p) => {
       setProfiles(p);
-      if (p.length > 0) setSelectedProfileId(p[0].id);
-      else setSelectedProfileId(null);
+      // Auto-select first if none selected
+      if (p.length > 0 && !selectedProfileId) setProfileId(p[0].id);
     }).catch(() => {});
   }, [user]);
 
@@ -41,7 +37,7 @@ export default function LeftPanel({ user, templateId, onCompute }) {
     }).catch(() => {});
   }, [templateId]);
 
-  // When profile changes, load its existing measurements
+  // When profile or template changes, load its existing measurements
   useEffect(() => {
     if (!selectedProfileId || !templateId) return;
     profilesApi.get(selectedProfileId).then((data) => {
@@ -54,21 +50,6 @@ export default function LeftPanel({ user, templateId, onCompute }) {
   }, [selectedProfileId, templateId]);
 
   const setMeasure = (key, val) => setMeasurements((m) => ({ ...m, [key]: val }));
-
-  const handleCreateProfile = async () => {
-    if (!newProfileName.trim()) return;
-    setCreating(true);
-    try {
-      const p = await profilesApi.create(newProfileName.trim());
-      setProfiles((prev) => [p, ...prev]);
-      setSelectedProfileId(p.id);
-      setNewProfileName("");
-    } catch (err) {
-      setStatus({ type: "err", msg: err.message });
-    } finally {
-      setCreating(false);
-    }
-  };
 
   const handleSaveAndCompute = async () => {
     if (!selectedProfileId || !templateId) return;
@@ -105,14 +86,14 @@ export default function LeftPanel({ user, templateId, onCompute }) {
 
   return (
     <aside className="left-panel">
-      <div className="panel-section">
+      <div className="panel-section" style={{ paddingBottom: 0 }}>
         <div className="section-label">Perfil de Medidas</div>
 
         {/* Profile selector */}
         <div className="field-group">
           <select
             value={selectedProfileId || ""}
-            onChange={(e) => setSelectedProfileId(e.target.value)}
+            onChange={(e) => setProfileId(e.target.value)}
           >
             <option value="" disabled>Seleccionar perfil…</option>
             {profiles.map((p) => (
@@ -121,28 +102,24 @@ export default function LeftPanel({ user, templateId, onCompute }) {
           </select>
         </div>
 
-        {/* Create new profile */}
-        <div className="create-profile-row">
-          <input
-            type="text"
-            placeholder="Nuevo perfil…"
-            value={newProfileName}
-            onChange={(e) => setNewProfileName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleCreateProfile()}
-          />
-          <button
-            className="btn-icon"
-            onClick={handleCreateProfile}
-            disabled={creating || !newProfileName.trim()}
-            title="Crear perfil"
+        <div className="section-label">Plantilla de Patrón</div>
+
+        {/* Template selector */}
+        <div className="field-group">
+          <select
+            value={templateId || ""}
+            onChange={(e) => onTemplateChange(Number(e.target.value))}
           >
-            <span className="material-symbols-outlined">add</span>
-          </button>
+            <option value="" disabled>Seleccionar patrón…</option>
+            {templates?.map((t) => (
+              <option key={t.id} value={t.id}>{t.template_name}</option>
+            ))}
+          </select>
         </div>
       </div>
 
       {/* Body measurements */}
-      <div className="panel-section flex-1 overflow-y-auto">
+      <div className="panel-section flex-1 overflow-y-auto" style={{ paddingTop: '10px' }}>
         <div className="section-label">
           <span>Medidas Corporales</span>
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>straighten</span>

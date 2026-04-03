@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Digital Atelier CAD - Library Manager</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#004493",
+                        "on-secondary-container": "#5f656c",
+                        "surface-container": "#eceef0",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#e6e8ea",
+                        "on-secondary-fixed": "#161c22",
+                        "inverse-surface": "#2d3133",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#191c1e",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c1c6d7",
+                        "tertiary-container": "#c64f00",
+                        "primary": "#0059bb",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "surface-dim": "#d8dadc",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#ffdbcc",
+                        "inverse-primary": "#adc7ff",
+                        "primary-container": "#0070ea",
+                        "surface-variant": "#e0e3e5",
+                        "secondary-fixed": "#dde3eb",
+                        "secondary": "#595f66",
+                        "surface-container-low": "#f2f4f6",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#005bc0",
+                        "on-surface-variant": "#414754",
+                        "on-tertiary-fixed-variant": "#7c2e00",
+                        "primary-fixed-dim": "#adc7ff",
+                        "surface-bright": "#f7f9fb",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary": "#9e3d00",
+                        "surface": "#f7f9fb",
+                        "on-tertiary-container": "#fffbff",
+                        "secondary-fixed-dim": "#c1c7cf",
+                        "on-primary-container": "#fefcff",
+                        "secondary-container": "#dde3eb",
+                        "on-tertiary-fixed": "#351000",
+                        "on-secondary-fixed-variant": "#41474e",
+                        "surface-container-highest": "#e0e3e5",
+                        "error": "#ba1a1a",
+                        "outline": "#717786",
+                        "on-primary-fixed": "#001a41",
+                        "on-background": "#191c1e",
+                        "background": "#f7f9fb",
+                        "inverse-on-surface": "#eff1f3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                },
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .technical-grid {
+            background-image: radial-gradient(circle, #c1c6d7 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-color: #f7f9fb;
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface antialiased">
+    <!-- TopNavBar -->
+    <nav
+        class="fixed top-0 w-full z-50 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/20 dark:border-slate-800/20 flex justify-between items-center px-6 h-16 w-full font-['Plus_Jakarta_Sans'] antialiased">
+        <div class="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50">
+            Digital Atelier
+        </div>
+        <div class="hidden md:flex items-center gap-8">
+            <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                href="#">Workspace</a>
+            <a class="text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 pb-1"
+                href="#">Library</a>
+            <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                href="#">Community</a>
+        </div>
+        <div class="flex items-center gap-4">
+            <button
+                class="p-2 text-slate-500 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors rounded-lg">
+                <span class="material-symbols-outlined" data-icon="settings">settings</span>
+            </button>
+            <button
+                class="p-2 text-slate-500 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors rounded-lg">
+                <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+            </button>
+            <div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant/20">
+                <img alt="User profile avatar" class="h-full w-full object-cover"
+                    data-alt="Close-up portrait of a professional fashion designer in a well-lit studio environment"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAhp3INj-4-nvxbFbV-gxygWsfeMgvMsHQ9agecjip2kxFAkJkqyyWw1O1e1tA9flTkCYzYA2seO3vSmbfw9YAY7rhUYme_xdvMP7Gq7FzdJpjeiYpjA0WMAKD3DnAKCdOE4KRKdM-Bwr-j4FBifmYg23TMkuLQy_54XbOTJJH_4igrIP3cpcfclrYc3O18BmyLRZ_MbrPyLFnfpQb8O0QvpPug0nMAGKpoKnmIWN2aQsHmbVBzqX-wDajZp0rKPQH-Mf8zcG_ZzfQ" />
+            </div>
+        </div>
+    </nav>
+    <!-- SideNavBar -->
+    <aside
+        class="h-screen w-64 fixed left-0 top-16 bg-slate-100 dark:bg-slate-950 flex flex-col py-4 gap-2 font-['Plus_Jakarta_Sans'] text-sm font-medium">
+        <div class="px-4 mb-6">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="h-10 w-10 rounded-lg bg-surface-container-highest flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary" data-icon="architecture">architecture</span>
+                </div>
+                <div>
+                    <h3 class="text-on-surface font-bold text-xs uppercase tracking-widest">Library Manager</h3>
+                    <p class="text-slate-500 text-[10px] uppercase">Technical Precision</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 px-2 space-y-1">
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 border-l-4 border-blue-600 shadow-sm transition-transform duration-200"
+                href="#">
+                <span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+                <span>All Patterns</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:translate-x-1 transition-transform duration-200"
+                href="#">
+                <span class="material-symbols-outlined" data-icon="accessibility_new">accessibility_new</span>
+                <span>Body Profiles</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:translate-x-1 transition-transform duration-200"
+                href="#">
+                <span class="material-symbols-outlined" data-icon="texture">texture</span>
+                <span>Fabric Library</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:translate-x-1 transition-transform duration-200"
+                href="#">
+                <span class="material-symbols-outlined" data-icon="ios_share">ios_share</span>
+                <span>Export Logs</span>
+            </a>
+        </nav>
+        <div class="px-4 mt-auto">
+            <button
+                class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg shadow-primary/20 hover:opacity-90 active:scale-95 transition-all">
+                Create New Pattern
+            </button>
+        </div>
+    </aside>
+    <!-- Main Content Canvas -->
+    <main class="pl-64 pt-16 min-h-screen technical-grid">
+        <div class="max-w-7xl mx-auto p-10">
+            <!-- Profile Selector: Editorial Horizontal Scroll -->
+            <section class="mb-12">
+                <div class="flex items-baseline justify-between mb-6">
+                    <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Client Library</h2>
+                    <button class="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
+                        View All Clients <span class="material-symbols-outlined text-sm"
+                            data-icon="chevron_right">chevron_right</span>
+                    </button>
+                </div>
+                <div class="flex gap-4 overflow-x-auto pb-6 scrollbar-hide">
+                    <!-- Profile Card Active -->
+                    <div class="flex-shrink-0 w-48 group cursor-pointer">
+                        <div class="relative p-1 rounded-xl bg-gradient-to-br from-primary to-primary-container">
+                            <div class="bg-surface-container-lowest rounded-lg p-4 text-center">
+                                <div
+                                    class="w-20 h-20 mx-auto rounded-full border-4 border-primary/10 overflow-hidden mb-3">
+                                    <img alt="Juan Perez" class="w-full h-full object-cover"
+                                        data-alt="Headshot of a middle-aged man with sharp features and professional attire, soft studio lighting"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe_hDqaJ_-N5efJmwxy5e2IHOx32iu5gLSa3s5s7cy7mzuIEkVpxEB916F786E-VPQpU9E7lZl67tbwvPvjzt_pM-A1_nxbV24_OiunlKoVoh8578H05Ndj-dENEJ18feKNTvyVk0L1ExuGG9z70dSy7r5XiyE3KNXg6D_VCeMDzbMNDamKDCkROf2KXbwDgrzyNYoR5WdLpPT9iwE46h37pW_oe0X6tfigYM_KRLLCtr71Elgr0qtL5fjuekBese-_n96mn_EqVql" />
+                                </div>
+                                <h4 class="font-bold text-on-surface text-sm">Juan Perez</h4>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-tighter">12 Patterns • Tailored
+                                    Fit</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Profile Card Inactive -->
+                    <div class="flex-shrink-0 w-48 group cursor-pointer">
+                        <div class="p-px rounded-xl bg-transparent group-hover:bg-outline-variant/30 transition-colors">
+                            <div
+                                class="bg-surface-container-low rounded-lg p-4 text-center group-hover:bg-surface-container-lowest transition-colors">
+                                <div
+                                    class="w-20 h-20 mx-auto rounded-full border-4 border-transparent overflow-hidden mb-3">
+                                    <img alt="Maria Garcia" class="w-full h-full object-cover"
+                                        data-alt="Portrait of a creative professional woman smiling, soft natural light, minimalist background"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmeYRW4WKzIMNo20ve7SedGc72u2IIR0P6w367dAfx-_s6lr1ZAqKZQLlgglDJmJYH6oLpU2dA3GnVtvz54BdGEjahAG_Zxr6ByVEQzILTkH82kSvSJY8vXwqWbDubKqHCVpYIej8s_XpwwTaYfOaSx_To6SG7QKLgHu516uCnUE4ZSMfYUY1ZuYjA24NTsjOwwczA0zl-ZDM4Vn6HfErR70UQy76kWAqY3mLRY6jbLNPvvU4V0jo9ySu9SGR-HMkxcBQ5oa1ZZaV2" />
+                                </div>
+                                <h4 class="font-bold text-slate-600 text-sm">Maria Garcia</h4>
+                                <p class="text-[10px] text-slate-400 uppercase tracking-tighter">8 Patterns • Haute
+                                    Couture</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Add New Profile Placeholder -->
+                    <div
+                        class="flex-shrink-0 w-48 group cursor-pointer border-2 border-dashed border-outline-variant/50 rounded-xl flex flex-col items-center justify-center hover:border-primary/50 transition-colors">
+                        <div
+                            class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined" data-icon="add">add</span>
+                        </div>
+                        <span
+                            class="mt-2 text-xs font-bold text-slate-400 group-hover:text-primary uppercase tracking-widest">New
+                            Profile</span>
+                    </div>
+                </div>
+            </section>
+            <!-- Pattern Grid -->
+            <section>
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-xl font-bold tracking-tight text-on-surface">Recent Projects: Juan Perez</h2>
+                        <div class="h-1 w-12 bg-primary mt-1"></div>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="relative">
+                            <input
+                                class="pl-10 pr-4 py-2 bg-surface-container-lowest border-none ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-lg text-sm w-64 transition-all"
+                                placeholder="Search patterns..." type="text" />
+                            <span class="material-symbols-outlined absolute left-3 top-2 text-slate-400 text-xl"
+                                data-icon="search">search</span>
+                        </div>
+                        <button
+                            class="px-4 py-2 bg-surface-container-high rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+                            <span class="material-symbols-outlined text-lg" data-icon="filter_list">filter_list</span>
+                            Filter
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Pattern Card 1 -->
+                    <div
+                        class="bg-surface-container-lowest rounded-lg group hover:translate-y-[-4px] transition-all duration-300">
+                        <div
+                            class="aspect-[4/3] bg-slate-100 rounded-t-lg overflow-hidden relative border-b border-outline-variant/10">
+                            <div class="absolute inset-0 p-8">
+                                <svg class="w-full h-full text-slate-300" fill="none" stroke="currentColor"
+                                    stroke-width="0.5" viewbox="0 0 100 100">
+                                    <path d="M50 10 L80 20 L85 85 L15 85 L20 20 Z"></path>
+                                    <path d="M50 10 V85" stroke-dasharray="2 2"></path>
+                                    <path d="M20 35 H80" stroke-dasharray="2 2"></path>
+                                </svg>
+                            </div>
+                            <div
+                                class="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-white/90 backdrop-blur shadow-sm flex items-center justify-center text-slate-600 hover:text-primary">
+                                    <span class="material-symbols-outlined text-lg"
+                                        data-icon="visibility">visibility</span>
+                                </button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-white/90 backdrop-blur shadow-sm flex items-center justify-center text-slate-600 hover:text-primary">
+                                    <span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+                                </button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-white/90 backdrop-blur shadow-sm flex items-center justify-center text-slate-600 hover:text-error">
+                                    <span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3 class="font-bold text-on-surface group-hover:text-primary transition-colors">
+                                    Tailored Evening Shirt</h3>
+                                <span
+                                    class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase">V2.4</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-4">Technical Mold • 14 Sep 2023</p>
+                            <div class="flex items-center gap-4 border-t border-outline-variant/10 pt-4">
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs text-slate-400"
+                                        data-icon="straighten">straighten</span>
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Size
+                                        40R</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs text-slate-400"
+                                        data-icon="layers">layers</span>
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">7
+                                        Layers</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pattern Card 2 -->
+                    <div
+                        class="bg-surface-container-lowest rounded-lg group hover:translate-y-[-4px] transition-all duration-300">
+                        <div
+                            class="aspect-[4/3] bg-slate-100 rounded-t-lg overflow-hidden relative border-b border-outline-variant/10">
+                            <div class="absolute inset-0 p-8">
+                                <svg class="w-full h-full text-slate-300" fill="none" stroke="currentColor"
+                                    stroke-width="0.5" viewbox="0 0 100 100">
+                                    <path d="M30 10 H70 L85 90 H15 Z"></path>
+                                    <path d="M30 30 C30 30 50 25 70 30"></path>
+                                </svg>
+                            </div>
+                            <div
+                                class="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-white/90 backdrop-blur shadow-sm flex items-center justify-center text-slate-600 hover:text-primary">
+                                    <span class="material-symbols-outlined text-lg"
+                                        data-icon="visibility">visibility</span>
+                                </button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-white/90 backdrop-blur shadow-sm flex items-center justify-center text-slate-600 hover:text-primary">
+                                    <span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+                                </button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-white/90 backdrop-blur shadow-sm flex items-center justify-center text-slate-600 hover:text-error">
+                                    <span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3 class="font-bold text-on-surface group-hover:text-primary transition-colors">A-Line
+                                    Midi Skirt</h3>
+                                <span
+                                    class="bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Draft</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-4">Master Block • 10 Sep 2023</p>
+                            <div class="flex items-center gap-4 border-t border-outline-variant/10 pt-4">
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs text-slate-400"
+                                        data-icon="straighten">straighten</span>
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Size
+                                        38</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs text-slate-400"
+                                        data-icon="layers">layers</span>
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">3
+                                        Layers</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pattern Card 3 -->
+                    <div
+                        class="bg-surface-container-lowest rounded-lg group hover:translate-y-[-4px] transition-all duration-300">
+                        <div
+                            class="aspect-[4/3] bg-slate-100 rounded-t-lg overflow-hidden relative border-b border-outline-variant/10">
+                            <div class="absolute inset-0 p-8">
+                                <svg class="w-full h-full text-slate-300" fill="none" stroke="currentColor"
+                                    stroke-width="0.5" viewbox="0 0 100 100">
+                                    <path d="M20 10 L40 10 L50 30 L60 10 L80 10 L90 90 L10 90 Z"></path>
+                                    <path d="M50 30 V90" stroke-dasharray="2 2"></path>
+                                </svg>
+                            </div>
+                            <div
+                                class="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-white/90 backdrop-blur shadow-sm flex items-center justify-center text-slate-600 hover:text-primary">
+                                    <span class="material-symbols-outlined text-lg"
+                                        data-icon="visibility">visibility</span>
+                                </button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-white/90 backdrop-blur shadow-sm flex items-center justify-center text-slate-600 hover:text-primary">
+                                    <span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+                                </button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-white/90 backdrop-blur shadow-sm flex items-center justify-center text-slate-600 hover:text-error">
+                                    <span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3 class="font-bold text-on-surface group-hover:text-primary transition-colors">
+                                    Slim-Fit Trousers</h3>
+                                <span
+                                    class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase">V1.0</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-4">Technical Mold • 02 Sep 2023</p>
+                            <div class="flex items-center gap-4 border-t border-outline-variant/10 pt-4">
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs text-slate-400"
+                                        data-icon="straighten">straighten</span>
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Size
+                                        32W</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs text-slate-400"
+                                        data-icon="layers">layers</span>
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">5
+                                        Layers</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+
+</html>

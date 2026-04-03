@@ -14,7 +14,7 @@ PUT    /api/profiles/{id}/measurements  – upsert body measurements for a profi
 from fastapi import APIRouter, HTTPException, Depends
 from auth import get_current_user
 from database import get_db, dict_cursor
-from schemas import MeasurementProfileCreate, BodyMeasurementsUpsert
+from schemas import MeasurementProfileCreate, MeasurementProfileUpdate, BodyMeasurementsUpsert
 
 router = APIRouter(prefix="/api/profiles", tags=["profiles"])
 
@@ -52,6 +52,25 @@ def create_profile(body: MeasurementProfileCreate, current_user: dict = Depends(
         )
         row = dict(cur.fetchone())
     return row
+
+@router.put("/{profile_id}")
+def update_profile(profile_id: str, body: MeasurementProfileUpdate, current_user: dict = Depends(get_current_user)):
+    with get_db() as conn:
+        cur = dict_cursor(conn)
+        cur.execute(
+            """
+            UPDATE measurement_profiles
+            SET profile_name = %s, remarks = %s
+            WHERE id = %s AND user_id = %s
+            RETURNING id, profile_name, remarks,
+                      to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS created_at
+            """,
+            (body.profile_name, body.remarks, profile_id, current_user["id"]),
+        )
+        row = cur.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Perfil no encontrado o sin permisos")
+        return dict(row)
 
 
 @router.get("/{profile_id}")

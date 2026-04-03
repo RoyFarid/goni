@@ -82,6 +82,13 @@ export const profilesApi = {
   get: (profileId) =>
     fetch(`${API_BASE}/api/profiles/${profileId}`, { headers: authHeaders() }).then(handleResponse),
 
+  update: (profileId, data) =>
+    fetch(`${API_BASE}/api/profiles/${profileId}`, {
+      method: "PUT",
+      headers: authHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+
   delete: (profileId) =>
     fetch(`${API_BASE}/api/profiles/${profileId}`, {
       method: "DELETE",

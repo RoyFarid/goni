@@ -33,6 +33,10 @@ class MeasurementProfileCreate(BaseModel):
     profile_name: str
     remarks: Optional[str] = None
 
+class MeasurementProfileUpdate(BaseModel):
+    profile_name: str
+    remarks: Optional[str] = None
+
 
 class MeasurementProfileOut(BaseModel):
     id: str
