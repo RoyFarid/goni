@@ -9,8 +9,9 @@ import IconButton from "./IconButton";
  *   pattern     – current PatternResponse | null
  *   templateId  – number
  *   profileId   – string
+ *   user        – current user object
  */
-export default function RightPanel({ pattern, templateId, profileId }) {
+export default function RightPanel({ pattern, templateId, profileId, user }) {
   const [dxfLoading, setDxfLoading] = useState(false);
   const [dxfError, setDxfError] = useState(null);
   const [showPlansModal, setShowPlansModal] = useState(false);
@@ -20,7 +21,19 @@ export default function RightPanel({ pattern, templateId, profileId }) {
     setDxfLoading(true);
     setDxfError(null);
     try {
-      await patternsApi.downloadDxf(templateId, profileId, pattern?.template_name);
+      if (user?.tier === "guest") {
+        // Guest Flow: Fetch measurements from localStorage
+        const local = JSON.parse(localStorage.getItem("goni_guest_profiles") || "[]");
+        const current = local.find(p => p.id === profileId);
+        const measurements = (current?.measurements || [])
+          .filter(m => m.template_id === templateId)
+          .map(m => ({ measurement_key: m.measurement_key, value_cm: m.value_cm }));
+        
+        await patternsApi.downloadDxfGuest(templateId, measurements, pattern?.template_name);
+      } else {
+        // Authenticated Flow
+        await patternsApi.downloadDxf(templateId, profileId, pattern?.template_name);
+      }
     } catch (err) {
       setDxfError(err.message);
     } finally {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { patternsApi } from "./api/client";
 import LeftPanel from "./components/LeftPanel";
@@ -20,15 +20,31 @@ function AppInner() {
   const [selectedProfileId, setSelectedProfileId] = useState(null);
   const [pattern, setPattern] = useState(null); // PatternResponse from API
   const [showPlansModal, setShowPlansModal] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
-  // Load templates when user logs in
+  // Derived user: memorized to prevent unnecessary re-renders in children
+  const activeUser = useMemo(() => {
+    return user || (isGuest ? { id: "guest", full_name: "Invitado", tier: "guest" } : null);
+  }, [user, isGuest]);
+
+
+  // Load templates when user (or guest) enters
   useEffect(() => {
-    if (!user) return;
+    if (!activeUser) {
+      setTemplates([]);
+      setSelectedTemplateId(null);
+      return;
+    }
+    
+    setTemplates([]); // Reset to show loading state if needed
     patternsApi.listTemplates().then((t) => {
       setTemplates(t);
-      if (t.length > 0) setSelectedTemplateId(t[0].id);
+      if (t.length > 0) {
+          // If we already have a selection, keep it, otherwise take the first one
+          if (!selectedTemplateId) setSelectedTemplateId(t[0].id);
+      }
     }).catch(() => { });
-  }, [user]);
+  }, [activeUser]);
 
   // When session expires → open login modal automatically
   useEffect(() => {
@@ -91,24 +107,24 @@ function AppInner() {
           )}
 
           {user && (
-            <IconButton 
+            <IconButton
               icon="workspace_premium"
               text="Mejorar Plan"
               onClick={() => setShowPlansModal(true)}
             />
           )}
 
-          {user ? (
+          {activeUser ? (
             <div className="user-menu">
-              <IconButton 
+              <IconButton
                 icon="person"
-                text={user.full_name || user.email}
+                text={activeUser.full_name || activeUser.email}
                 title="Mi Cuenta"
               />
               <IconButton
-                icon="logout"
-                text="Cerrar Sesión"
-                onClick={logout}
+                icon={isGuest ? "login" : "logout"}
+                text={isGuest ? "Iniciar Sesión" : "Cerrar Sesión"}
+                onClick={isGuest ? () => setShowLogin(true) : logout}
               />
             </div>
           ) : (
@@ -121,11 +137,11 @@ function AppInner() {
 
       {/* ── Main 3-column layout or Library ──────────────────────────────────── */}
       <main className="main-layout bg-surface text-on-surface antialiased">
-        {user ? (
+        {activeUser ? (
           activeView === "workspace" ? (
             <>
               <LeftPanel
-                user={user}
+                user={activeUser}
                 templates={templates}
                 templateId={selectedTemplateId}
                 onTemplateChange={(newId) => {
@@ -141,11 +157,12 @@ function AppInner() {
                 pattern={pattern}
                 templateId={selectedTemplateId}
                 profileId={selectedProfileId}
+                user={activeUser}
               />
             </>
           ) : (
             <Library
-              user={user}
+              user={activeUser}
               selectedProfileId={selectedProfileId}
               setProfileId={setSelectedProfileId}
               onViewPattern={(tId, pId) => handleViewPattern(tId, pId)}
@@ -155,12 +172,22 @@ function AppInner() {
           <div className="not-logged">
             <div className="not-logged-card">
               <div className="brand-huge">G</div>
-              <h1>Goni</h1>
+              <h1>GONI</h1>
               <p>Sistema de patronaje digital profesional</p>
-              <button className="btn-primary large" onClick={() => setShowLogin(true)}>
-                <span className="material-symbols-outlined">login</span>
-                Comenzar
-              </button>
+              <div className="not-logged-actions">
+                <IconButton
+                  icon="login"
+                  text="Iniciar Sesión"
+                  onClick={() => setShowLogin(true)}
+                  className="btn-primary large"
+                />
+                <IconButton
+                  icon="person_outline"
+                  text="Continuar como Invitado"
+                  onClick={() => setIsGuest(true)}
+                  className="btn-secondary large"
+                />
+              </div>
             </div>
           </div>
         )}
@@ -226,7 +253,7 @@ function AppInner() {
                     </div>
                     <div className="plan-feature-item">
                       <span className="material-symbols-outlined plan-check-icon">check_circle</span>
-                      <p>10 descargas mensuales</p>
+                      <p>10 descargas y 10 impresiones mensuales</p>
                     </div>
                     <div className="plan-feature-item">
                       <span className="material-symbols-outlined plan-check-icon">check_circle</span>
@@ -266,7 +293,7 @@ function AppInner() {
                     </div>
                     <div className="plan-feature-item">
                       <span className="material-symbols-outlined plan-check-icon">check_circle</span>
-                      <p>30 descargas mensuales</p>
+                      <p>30 descargas y 30 impresiones mensuales</p>
                     </div>
                     <div className="plan-feature-item">
                       <span className="material-symbols-outlined plan-check-icon">check_circle</span>
@@ -275,10 +302,6 @@ function AppInner() {
                     <div className="plan-feature-item">
                       <span className="material-symbols-outlined plan-check-icon">check_circle</span>
                       <p>Edición avanzada de curvas Catmull-Rom</p>
-                    </div>
-                    <div className="plan-feature-item" style={{ opacity: 0.6 }}>
-                      <span className="material-symbols-outlined plan-check-icon">check_circle</span>
-                      <p>Sincronización en la nube</p>
                     </div>
                   </div>
                   <button className="plan-btn plan-btn-primary">
@@ -309,7 +332,7 @@ function AppInner() {
                     </div>
                     <div className="plan-feature-item">
                       <span className="material-symbols-outlined plan-check-icon">check_circle</span>
-                      <p>Descargas y perfiles ilimitados</p>
+                      <p>Descargas, impresiones y perfiles ilimitados</p>
                     </div>
                     <div className="plan-feature-item">
                       <span className="material-symbols-outlined plan-check-icon">check_circle</span>
@@ -331,7 +354,12 @@ function AppInner() {
       )}
 
       {/* ── Login Modal ───────────────────────────────────────────────────── */}
-      {showLogin && <LoginPage onClose={() => { setShowLogin(false); clearAlert(); }} />}
+      {showLogin && (
+        <LoginPage 
+          onClose={() => { setShowLogin(false); clearAlert(); }} 
+          onGuest={() => { setIsGuest(true); setShowLogin(false); }}
+        />
+      )}
     </div>
   );
 }

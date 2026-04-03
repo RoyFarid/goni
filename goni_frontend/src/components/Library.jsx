@@ -26,15 +26,20 @@ export default function Library({ user, selectedProfileId, setProfileId, onViewP
 
   const loadData = async () => {
     try {
-      const [p, t] = await Promise.all([
-        profilesApi.list(),
-        patternsApi.listTemplates()
-      ]);
-      setProfiles(p);
-      setTemplates(t);
-      // Solo seleccionamos el primero si no hay ninguno seleccionado ya en el estado global
-      if (p.length > 0 && !selectedProfileId) {
-        setProfileId(p[0].id);
+      let p_list = [];
+      if (user?.tier === "guest") {
+        p_list = JSON.parse(localStorage.getItem("goni_guest_profiles") || "[]");
+      } else {
+        p_list = await profilesApi.list();
+      }
+
+      const t_list = await patternsApi.listTemplates();
+      
+      setProfiles(p_list);
+      setTemplates(t_list);
+      
+      if (p_list.length > 0 && !selectedProfileId) {
+        setProfileId(p_list[0].id);
       }
     } catch (err) {
       console.error("Error cargando biblioteca:", err);
@@ -56,27 +61,47 @@ export default function Library({ user, selectedProfileId, setProfileId, onViewP
     const trimmed = newName.trim();
     if (!trimmed) return;
 
-    // Verificar duplicados
+    // 1. Check Plan Limits
+    try {
+      const planId = user?.tier || "guest";
+      const limits = await profilesApi.getPlanLimits(planId);
+      if (profiles.length >= limits.max_profiles) {
+        setError(`Límite alcanzado: Tu plan permite ${limits.max_profiles} perfiles.`);
+        return;
+      }
+    } catch (e) {}
+
+    // 2. Check Duplicates
     const exists = profiles.some(p => p.profile_name.toLowerCase() === trimmed.toLowerCase());
     if (exists) {
       setError("Ya existe un perfil con ese nombre");
       return;
     }
 
+    // 3. Save
     try {
-      const newP = await profilesApi.create(trimmed);
-      setProfiles([...profiles, newP]);
-      setProfileId(newP.id);
+      if (user?.tier === "guest") {
+        const local = JSON.parse(localStorage.getItem("goni_guest_profiles") || "[]");
+        const newP = { id: `guest-p${Date.now()}`, profile_name: trimmed, measurements: [] };
+        local.push(newP);
+        localStorage.setItem("goni_guest_profiles", JSON.stringify(local));
+        setProfiles([...local]);
+        setProfileId(newP.id);
+      } else {
+        const newP = await profilesApi.create(trimmed);
+        setProfiles([...profiles, newP]);
+        setProfileId(newP.id);
+      }
       setIsCreating(false);
       setNewName("");
     } catch (err) {
-      setError("Error al guardar");
+      setError(err.message || "Error al guardar");
     }
   };
 
   const handleStartEdit = () => {
     if (!selectedProfileId) return;
-    const p = profiles.find(pf => pf.id == selectedProfileId);
+    const p = profiles.find(pf => pf.id === selectedProfileId);
     if (!p) return;
     setEditingProfileId(p.id);
     setEditName(p.profile_name);
@@ -88,8 +113,18 @@ export default function Library({ user, selectedProfileId, setProfileId, onViewP
     if (!trimmed) return;
 
     try {
-      const updatedP = await profilesApi.update(idToUpdate, { profile_name: trimmed });
-      setProfiles(profiles.map(p => p.id === idToUpdate ? { ...p, profile_name: updatedP.profile_name } : p));
+      if (user?.tier === "guest") {
+        const local = JSON.parse(localStorage.getItem("goni_guest_profiles") || "[]");
+        const idx = local.findIndex(p => p.id === idToUpdate);
+        if (idx !== -1) {
+          local[idx].profile_name = trimmed;
+          localStorage.setItem("goni_guest_profiles", JSON.stringify(local));
+          setProfiles([...local]);
+        }
+      } else {
+        const updatedP = await profilesApi.update(idToUpdate, { profile_name: trimmed });
+        setProfiles(profiles.map(p => p.id === idToUpdate ? { ...p, profile_name: updatedP.profile_name } : p));
+      }
       setEditingProfileId(null);
       setEditName("");
     } catch (err) {
@@ -100,8 +135,16 @@ export default function Library({ user, selectedProfileId, setProfileId, onViewP
   const handleDeleteProfile = async () => {
     if (!deletingProfile) return;
     try {
-      await profilesApi.delete(deletingProfile.id);
-      setProfiles(profiles.filter(p => p.id !== deletingProfile.id));
+      if (user?.tier === "guest") {
+        const local = JSON.parse(localStorage.getItem("goni_guest_profiles") || "[]");
+        const filtered = local.filter(p => p.id !== deletingProfile.id);
+        localStorage.setItem("goni_guest_profiles", JSON.stringify(filtered));
+        setProfiles(filtered);
+      } else {
+        await profilesApi.delete(deletingProfile.id);
+        setProfiles(profiles.filter(p => p.id !== deletingProfile.id));
+      }
+      
       if (selectedProfileId == deletingProfile.id) {
         setProfileId(null);
       }
@@ -120,7 +163,7 @@ export default function Library({ user, selectedProfileId, setProfileId, onViewP
     p.profile_name.toLowerCase().includes(profileSearchTerm.toLowerCase())
   );
 
-  const selectedProfile = profiles.find(p => p.id === Number(selectedProfileId));
+  const selectedProfile = profiles.find(p => p.id == selectedProfileId);
 
   return (
     <div className="library-container">

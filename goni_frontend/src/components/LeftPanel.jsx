@@ -12,21 +12,34 @@ import { profilesApi, patternsApi } from "../api/client";
 export default function LeftPanel({ user, templates, templateId, onTemplateChange, selectedProfileId, setProfileId, onCompute }) {
   const [profiles, setProfiles] = useState([]);
   const [requiredKeys, setRequiredKeys] = useState([]);
-  const [measurements, setMeasurements] = useState({}); // key → value string
+  const [measurements, setMeasurements] = useState({});
   const [status, setStatus] = useState(null); // {type:'ok'|'err', msg}
   const [loading, setLoading] = useState(false);
 
-  // Load profiles whenever the logged-in user changes
+  // Load profiles whenever the logged-in user (or guest) changes
   useEffect(() => {
     if (!user) {
       setProfiles([]);
       return;
     }
-    profilesApi.list().then((p) => {
-      setProfiles(p);
-      // Auto-select first if none selected
-      if (p.length > 0 && !selectedProfileId) setProfileId(p[0].id);
-    }).catch(() => {});
+
+    if (user.tier === "guest") {
+      // Local management for guests
+      const local = JSON.parse(localStorage.getItem("goni_guest_profiles") || "[]");
+      if (local.length === 0) {
+        const defaultProfile = { id: "guest-p1", profile_name: "Perfil Temporal", measurements: [] };
+        local.push(defaultProfile);
+        localStorage.setItem("goni_guest_profiles", JSON.stringify(local));
+      }
+      setProfiles(local);
+      if (!selectedProfileId) setProfileId(local[0].id);
+    } else {
+      // API management for registered users
+      profilesApi.list().then((p) => {
+        setProfiles(p);
+        if (p.length > 0 && !selectedProfileId) setProfileId(p[0].id);
+      }).catch(() => {});
+    }
   }, [user]);
 
   // When template changes, fetch required measurement keys
@@ -40,14 +53,27 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
   // When profile or template changes, load its existing measurements
   useEffect(() => {
     if (!selectedProfileId || !templateId) return;
-    profilesApi.get(selectedProfileId).then((data) => {
+
+    if (user?.tier === "guest") {
+      const local = JSON.parse(localStorage.getItem("goni_guest_profiles") || "[]");
+      const current = local.find(p => p.id === selectedProfileId);
       const map = {};
-      (data.measurements || [])
-        .filter((m) => m.template_id === templateId)
-        .forEach((m) => { map[m.measurement_key] = String(m.value_cm); });
+      if (current) {
+        (current.measurements || [])
+          .filter((m) => m.template_id === templateId)
+          .forEach((m) => { map[m.measurement_key] = String(m.value_cm); });
+      }
       setMeasurements(map);
-    }).catch(() => {});
-  }, [selectedProfileId, templateId]);
+    } else {
+      profilesApi.get(selectedProfileId).then((data) => {
+        const map = {};
+        (data.measurements || [])
+          .filter((m) => m.template_id === templateId)
+          .forEach((m) => { map[m.measurement_key] = String(m.value_cm); });
+        setMeasurements(map);
+      }).catch(() => {});
+    }
+  }, [selectedProfileId, templateId, user]);
 
   const setMeasure = (key, val) => setMeasurements((m) => ({ ...m, [key]: val }));
 
@@ -60,8 +86,26 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
         .filter((k) => measurements[k] !== undefined && measurements[k] !== "")
         .map((k) => ({ measurement_key: k, value_cm: parseFloat(measurements[k]) }));
 
-      await profilesApi.saveMeasurements(selectedProfileId, templateId, items);
-      const pattern = await patternsApi.compute(templateId, selectedProfileId);
+      let pattern;
+      if (user?.tier === "guest") {
+        // 1. Save locally
+        const local = JSON.parse(localStorage.getItem("goni_guest_profiles") || "[]");
+        const idx = local.findIndex(p => p.id === selectedProfileId);
+        if (idx !== -1) {
+          // Remove old measurements for this template
+          const otherMeas = (local[idx].measurements || []).filter(m => m.template_id !== templateId);
+          local[idx].measurements = [...otherMeas, ...items.map(it => ({ ...it, template_id: templateId }))];
+          localStorage.setItem("goni_guest_profiles", JSON.stringify(local));
+          setProfiles([...local]);
+        }
+        // 2. Compute via guest endpoint
+        pattern = await patternsApi.computeGuest(templateId, items);
+      } else {
+        // Regular flow
+        await profilesApi.saveMeasurements(selectedProfileId, templateId, items);
+        pattern = await patternsApi.compute(templateId, selectedProfileId);
+      }
+
       onCompute(pattern, selectedProfileId);
       setStatus({ type: "ok", msg: "Molde generado ✓" });
     } catch (err) {

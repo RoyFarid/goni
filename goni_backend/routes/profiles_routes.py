@@ -15,6 +15,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from auth import get_current_user
 from database import get_db, dict_cursor
 from schemas import MeasurementProfileCreate, MeasurementProfileUpdate, BodyMeasurementsUpsert
+from usage_service import get_plan_limits
 
 router = APIRouter(prefix="/api/profiles", tags=["profiles"])
 
@@ -41,6 +42,22 @@ def list_profiles(current_user: dict = Depends(get_current_user)):
 def create_profile(body: MeasurementProfileCreate, current_user: dict = Depends(get_current_user)):
     with get_db() as conn:
         cur = dict_cursor(conn)
+        
+        # 1. Count current profiles
+        cur.execute("SELECT COUNT(*) FROM measurement_profiles WHERE user_id = %s", (current_user["id"],))
+        count = cur.fetchone()[0]
+        
+        # 2. Get Plan Limits
+        plan_id = current_user.get("tier", "node")
+        limits = get_plan_limits(plan_id)
+        max_p = limits["max_profiles"] if limits else 2
+        
+        if count >= max_p:
+            raise HTTPException(
+                status_code=403, 
+                detail=f"Tu plan '{plan_id.upper()}' permite un máximo de {max_p} perfiles. Mejora tu suscripción para crear más."
+            )
+
         cur.execute(
             """
             INSERT INTO measurement_profiles (user_id, profile_name, remarks)
@@ -52,6 +69,16 @@ def create_profile(body: MeasurementProfileCreate, current_user: dict = Depends(
         )
         row = dict(cur.fetchone())
     return row
+
+@router.get("/plans/{plan_id}/limits")
+def get_public_plan_limits(plan_id: str):
+    """
+    Public endpoint to check plan limits (used by Guest Mode in Frontend)
+    """
+    limits = get_plan_limits(plan_id)
+    if not limits:
+        raise HTTPException(status_code=404, detail="Plan no encontrado")
+    return limits
 
 @router.put("/{profile_id}")
 def update_profile(profile_id: str, body: MeasurementProfileUpdate, current_user: dict = Depends(get_current_user)):

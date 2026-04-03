@@ -8,6 +8,17 @@ const authHeaders = () => ({
   Authorization: `Bearer ${getToken()}`,
 });
 
+// ─── Guest identity ────────────────────────────────────────────────────────────
+export const getGuestId = () => {
+  let gid = localStorage.getItem("goni_guest_id");
+  if (!gid) {
+    // Genera un ID simple "guest_xxxxx" que persiste en el navegador
+    gid = "guest_" + Math.random().toString(36).substring(2, 11);
+    localStorage.setItem("goni_guest_id", gid);
+  }
+  return gid;
+};
+
 async function handleResponse(res) {
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
@@ -101,6 +112,11 @@ export const profilesApi = {
       headers: authHeaders(),
       body: JSON.stringify({ template_id: templateId, measurements }),
     }).then(handleResponse),
+
+  getPlanLimits: (planId) =>
+    fetch(`${API_BASE}/api/profiles/plans/${planId}/limits`, { 
+      headers: { "Content-Type": "application/json" }
+    }).then(handleResponse),
 };
 
 // ─── Patterns ─────────────────────────────────────────────────────────────────
@@ -125,6 +141,33 @@ export const patternsApi = {
       { headers: { Authorization: `Bearer ${token}` } }
     );
     if (!res.ok) throw new Error("Error generando DXF");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${templateName || "molde"}.dxf`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  // ── Guest methods ───────────────────────────────────────────────────────────
+  computeGuest: (templateId, measurements) =>
+    fetch(`${API_BASE}/api/patterns/${templateId}/compute-guest`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ guest_id: getGuestId(), measurements }),
+    }).then(handleResponse),
+
+  downloadDxfGuest: async (templateId, measurements, templateName) => {
+    const res = await fetch(`${API_BASE}/api/patterns/${templateId}/export-guest/dxf`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ guest_id: getGuestId(), measurements }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: "Error" }));
+      throw new Error(err.detail || "Error generando DXF");
+    }
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

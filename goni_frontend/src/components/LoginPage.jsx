@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import IconButton from "./IconButton";
 
-export default function LoginPage({ onClose }) {
+export default function LoginPage({ onClose, onGuest }) {
   const { login, register } = useAuth();
   const [mode, setMode] = useState("login"); // "login" | "register"
   const [form, setForm] = useState({ email: "", password: "", full_name: "" });
@@ -34,9 +35,9 @@ export default function LoginPage({ onClose }) {
       <div className="login-card">
         {/* Header */}
         <div className="login-header">
-          <div className="login-logo">EP</div>
+          <div className="login-logo">G</div>
           <h2>{mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}</h2>
-          <p>EasyPattern CAD</p>
+          <p>GONI</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -88,6 +89,18 @@ export default function LoginPage({ onClose }) {
             <>¿Ya tienes cuenta? <button onClick={() => setMode("login")}>Inicia sesión</button></>
           )}
         </div>
+
+        {mode === "login" && onGuest && (
+          <div className="login-guest-section">
+            <div className="login-divider">O también</div>
+            <IconButton 
+              icon="launch"
+              text="Continuar como Invitado"
+              onClick={onGuest}
+              className="btn-secondary w-full"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

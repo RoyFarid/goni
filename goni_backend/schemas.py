@@ -76,3 +76,7 @@ class PatternResponse(BaseModel):
     points: list[ComputedPoint]
     paths: list[PathDef]
     technicals: dict   # intermediate values for debug panel
+
+class GuestComputeRequest(BaseModel):
+    guest_id: str
+    measurements: list[BodyMeasurementItem]

@@ -1697,3 +1697,70 @@ body {
   from { opacity: 0; transform: scale(0.9) translateY(20px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
+
+/* ─── Not Logged Landing ────────────────────────────────────────── */
+.not-logged {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: radial-gradient(circle at top right, var(--primary-fixed), var(--surface));
+  padding: 2rem;
+}
+
+.not-logged-card {
+  max-width: 480px;
+  text-align: center;
+  background: var(--surface-white);
+  padding: 3rem;
+  border-radius: 24px;
+  border: 1px solid var(--outline-variant);
+  box-shadow: var(--shadow-lg);
+  animation: modal-in 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.brand-huge {
+  font-size: 80px;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 1rem;
+  line-height: 1;
+}
+
+.not-logged-card h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: -1px;
+  color: var(--on-surface);
+}
+
+.not-logged-card p {
+  color: var(--on-surface-variant);
+  margin-bottom: 2.5rem;
+  font-size: 1.1rem;
+}
+
+.not-logged-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ─── Login Guest Section ──────────────────────────────────────── */
+.login-guest-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--outline-variant);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-divider {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--outline);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+}
