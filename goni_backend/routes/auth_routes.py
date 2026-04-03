@@ -36,6 +36,15 @@ def register(body: RegisterRequest):
         )
         user = dict(cur.fetchone())
 
+        # Crear perfil de medidas por defecto
+        cur.execute(
+            """
+            INSERT INTO measurement_profiles (user_id, profile_name, remarks)
+            VALUES (%s, 'Defecto', 'Perfil creado automáticamente al registrarse')
+            """,
+            (user["id"],)
+        )
+
     return {"message": "Usuario creado", "user_id": str(user["id"])}
 
 

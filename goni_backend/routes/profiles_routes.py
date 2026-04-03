@@ -45,7 +45,7 @@ def create_profile(body: MeasurementProfileCreate, current_user: dict = Depends(
         
         # 1. Count current profiles
         cur.execute("SELECT COUNT(*) FROM measurement_profiles WHERE user_id = %s", (current_user["id"],))
-        count = cur.fetchone()[0]
+        count = cur.fetchone()["count"]
         
         # 2. Get Plan Limits
         plan_id = current_user.get("tier", "node")
