@@ -26,6 +26,7 @@ class LoginResponse(BaseModel):
     email: str
     full_name: Optional[str]
     membership_tier: str
+    plan_name: Optional[str] = None
 
 
 # ─── Measurement Profiles ──────────────────────────────────────────────────────

@@ -1,5 +1,6 @@
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
+
 // ─── Token helpers ────────────────────────────────────────────────────────────
 const getToken = () => localStorage.getItem("ep_token");
 
@@ -60,6 +61,7 @@ export const authApi = {
       email: data.email,
       full_name: data.full_name,
       tier: data.membership_tier,
+      plan_name: data.plan_name,
     }));
     return data;
   },

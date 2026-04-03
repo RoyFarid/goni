@@ -28,9 +28,9 @@ def register(body: RegisterRequest):
         hashed = hash_password(body.password)
         cur.execute(
             """
-            INSERT INTO users (email, password_hash, full_name)
-            VALUES (%s, %s, %s)
-            RETURNING id, email, full_name, membership_tier, created_at
+            INSERT INTO users (email, password_hash, full_name, plan_id)
+            VALUES (%s, %s, %s, 'node')
+            RETURNING id, email, full_name, plan_id AS membership_tier, created_at
             """,
             (body.email, hashed, body.full_name),
         )
@@ -44,7 +44,13 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     with get_db() as conn:
         cur = dict_cursor(conn)
         cur.execute(
-            "SELECT id, email, password_hash, full_name, membership_tier FROM users WHERE email = %s",
+            """
+            SELECT u.id, u.email, u.password_hash, u.full_name, 
+                   u.plan_id AS membership_tier, m.name AS plan_name
+            FROM users u
+            LEFT JOIN membership_plans m ON u.plan_id = m.plan_id
+            WHERE u.email = %s
+            """,
             (form_data.username,),
         )
         user = cur.fetchone()
@@ -65,6 +71,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
         email=user["email"],
         full_name=user["full_name"],
         membership_tier=user["membership_tier"],
+        plan_name=user["plan_name"],
     )
 
 
@@ -74,7 +81,13 @@ def me(current_user: dict = Depends(get_current_user)):
     with get_db() as conn:
         cur = dict_cursor(conn)
         cur.execute(
-            "SELECT id, email, full_name, membership_tier, created_at FROM users WHERE id = %s",
+            """
+            SELECT u.id, u.email, u.full_name, u.plan_id AS membership_tier, 
+                   m.name AS plan_name, u.created_at 
+            FROM users u
+            LEFT JOIN membership_plans m ON u.plan_id = m.plan_id
+            WHERE u.id = %s
+            """,
             (current_user["id"],),
         )
         user = cur.fetchone()
