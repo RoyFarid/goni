@@ -24,8 +24,8 @@ app = FastAPI(
 # ─── CORS ─────────────────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_origin],
-    allow_credentials=True,
+    allow_origins=["*"], # Permite conexión desde cualquier lado (ideal para Railway)
+    allow_credentials=False, # Requerido apagarlo si usamos "*"
     allow_methods=["*"],
     allow_headers=["*"],
 )
