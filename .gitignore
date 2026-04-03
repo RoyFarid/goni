@@ -1,6 +1,12 @@
+# Frontend (React/Vite)
 node_modules/
-__pycache__/
-.env
-venv/
-.DS_Store
 dist/
+package-lock.json
+
+# Backend (Python)
+__pycache__/
+*.py[cod]
+venv/
+.env
+# Python usa estos, NO los ignores:
+# requirements.txt
