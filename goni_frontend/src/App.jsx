@@ -9,7 +9,7 @@ import "./index.css";
 
 // ─── Inner app (needs auth context) ──────────────────────────────────────────
 function AppInner() {
-  const { user, logout } = useAuth();
+  const { user, logout, sessionAlert, clearAlert } = useAuth();
 
   const [showLogin, setShowLogin] = useState(false);
   const [templates, setTemplates] = useState([]);
@@ -26,6 +26,11 @@ function AppInner() {
     }).catch(() => { });
   }, [user]);
 
+  // When session expires → open login modal automatically
+  useEffect(() => {
+    if (sessionAlert) setShowLogin(true);
+  }, [sessionAlert]);
+
   // Wrap LeftPanel compute so RightPanel knows the current profile
   const handleCompute = (patternData, profileId) => {
     setPattern(patternData);
@@ -34,10 +39,21 @@ function AppInner() {
 
   return (
     <div className="app-shell">
+      {/* ── Session expired banner ─────────────────────────────────────────── */}
+      {sessionAlert && (
+        <div className="session-alert">
+          <span className="material-symbols-outlined">warning</span>
+          <span>{sessionAlert}</span>
+          <button onClick={clearAlert} aria-label="Cerrar">
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      )}
+
       {/* ── Top Nav ──────────────────────────────────────────────────────── */}
       <header className="topnav">
         <div className="topnav-left">
-          <span className="brand">Goni</span>
+          <span className="brand">GONI</span>
           <nav className="topnav-links">
             <a href="#" className="nav-link active">Workspace</a>
             <a href="#" className="nav-link">Biblioteca</a>
@@ -84,6 +100,7 @@ function AppInner() {
         {user ? (
           <>
             <LeftPanel
+              user={user}
               templateId={selectedTemplateId}
               onCompute={(data, profileId) => handleCompute(data, profileId)}
             />
@@ -122,7 +139,7 @@ function AppInner() {
       </footer>
 
       {/* ── Login Modal ───────────────────────────────────────────────────── */}
-      {showLogin && <LoginPage onClose={() => setShowLogin(false)} />}
+      {showLogin && <LoginPage onClose={() => { setShowLogin(false); clearAlert(); }} />}
     </div>
   );
 }

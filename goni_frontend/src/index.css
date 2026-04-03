@@ -58,6 +58,33 @@ body {
 
 #root { height: 100vh; display: flex; flex-direction: column; }
 
+/* ─── Session expired banner ─────────────────────────────── */
+.session-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: #fff3cd;
+  border-bottom: 2px solid #f5a623;
+  color: #7a5100;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 999;
+  flex-shrink: 0;
+}
+.session-alert .material-symbols-outlined { color: #f5a623; font-size: 20px; }
+.session-alert span:nth-child(2) { flex: 1; }
+.session-alert button {
+  display: flex; align-items: center;
+  background: none; border: none; cursor: pointer;
+  color: #7a5100; padding: 2px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.session-alert button:hover { background: rgba(0,0,0,0.08); }
+.session-alert button .material-symbols-outlined { font-size: 16px; color: inherit; }
+
+
 /* ─── App shell ──────────────────────────────────────────── */
 .app-shell {
   display: flex;
@@ -690,3 +717,310 @@ body {
   .canvas-section { position: fixed; inset: 0; }
   .canvas-area { background: white; }
 }
+
+/* ─── Upgrade Plan button ────────────────────────────────── */
+.upgrade-plan-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 16px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--on-surface) 0%, #2d3133 100%);
+  color: var(--surface);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.upgrade-plan-btn:hover {
+  background: linear-gradient(135deg, #000000 0%, #1a1c1e 100%);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.28);
+  transform: translateY(-1px);
+}
+.upgrade-plan-btn:active { transform: scale(0.98); }
+
+/* ─── Plans modal overlay ────────────────────────────────── */
+.plans-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+}
+
+.plans-modal {
+  background: var(--surface-low);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.28);
+  width: 100%;
+  max-width: 940px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  animation: modal-in 0.22s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Modal header */
+.plans-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--outline-variant);
+}
+.plans-modal-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--on-surface);
+  letter-spacing: -0.3px;
+}
+.plans-modal-subtitle {
+  font-size: 12px;
+  color: var(--secondary);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+.plans-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.plans-modal-close:hover { background: var(--error-bg); color: var(--error); border-color: var(--error); }
+.plans-modal-close .material-symbols-outlined { font-size: 18px; }
+
+/* Plans grid */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 24px 28px 28px;
+  align-items: start;
+}
+
+/* Plan card */
+.plan-card {
+  border-radius: var(--radius-md);
+  background: var(--surface-white);
+  border: 1px solid var(--outline-variant);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.plan-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+.plan-card--featured {
+  background: var(--surface-white);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary), var(--shadow-lg);
+  position: relative;
+  transform: translateY(-4px);
+}
+.plan-card--featured:hover { transform: translateY(-6px); box-shadow: 0 0 0 2px var(--primary), 0 16px 40px rgba(0,0,0,0.18); }
+
+.plan-card-inner {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.plan-badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary);
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.plan-tier-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.plan-tier-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  letter-spacing: 0.06em;
+}
+.plan-tier-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--outline);
+  flex-shrink: 0;
+}
+.plan-tier-dot--primary { background: var(--primary); }
+.plan-tier-level {
+  font-size: 10px;
+  color: var(--secondary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.plan-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--on-surface);
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+.plan-tagline {
+  font-size: 11px;
+  color: var(--secondary);
+  font-style: italic;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.plan-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.plan-price {
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--on-surface);
+  letter-spacing: -1px;
+}
+.plan-price-period {
+  font-size: 13px;
+  color: var(--secondary);
+  font-weight: 500;
+}
+.plan-price-desc {
+  font-size: 11px;
+  color: var(--secondary);
+  margin-bottom: 18px;
+}
+
+.plan-features { flex: 1; margin-bottom: 20px; }
+.plan-features-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-variant);
+  margin-bottom: 10px;
+}
+.plan-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.plan-feature-item p {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--on-surface);
+  line-height: 1.4;
+}
+.plan-check-icon {
+  font-size: 16px !important;
+  color: var(--primary);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Plan buttons */
+.plan-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 13px 16px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.plan-btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-container));
+  color: white;
+  box-shadow: 0 3px 12px rgba(0,123,255,0.3);
+}
+.plan-btn-primary:hover { box-shadow: 0 6px 20px rgba(0,123,255,0.45); transform: translateY(-1px); }
+.plan-btn-primary:active { transform: scale(0.98); }
+
+.plan-btn-secondary {
+  background: var(--surface-high);
+  color: var(--on-surface);
+  border: 1px solid var(--outline-variant);
+}
+.plan-btn-secondary:hover { background: var(--surface-highest); }
+
+/* ─── Responsive: mobile stacks plans vertically ──────────── */
+@media (max-width: 700px) {
+  .plans-grid {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 28px;
+  }
+  .plan-card--featured {
+    transform: none;
+    order: -1;
+  }
+  .plan-card--featured:hover { transform: translateY(-2px); }
+  .plans-modal {
+    max-height: 92vh;
+    border-radius: var(--radius-md);
+  }
+  .plans-modal-header { padding: 18px 16px 14px; }
+  .plans-modal-title { font-size: 17px; }
+}
+
+@media (max-width: 900px) and (min-width: 701px) {
+  .plans-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .plan-card:last-child {
+    grid-column: 1 / -1;
+    max-width: 380px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+

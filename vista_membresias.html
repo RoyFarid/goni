@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Membership Selection | Digital Atelier CAD</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#717786",
+                        "surface-bright": "#f7f9fb",
+                        "surface-variant": "#e0e3e5",
+                        "surface-container-high": "#e6e8ea",
+                        "primary": "#0059bb",
+                        "on-primary-fixed-variant": "#004493",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f2f4f6",
+                        "primary-fixed": "#d8e2ff",
+                        "on-background": "#191c1e",
+                        "secondary": "#595f66",
+                        "on-surface-variant": "#414754",
+                        "tertiary-container": "#c64f00",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-secondary-fixed": "#161c22",
+                        "error": "#ba1a1a",
+                        "surface": "#f7f9fb",
+                        "tertiary-fixed": "#ffdbcc",
+                        "surface-tint": "#005bc0",
+                        "primary-fixed-dim": "#adc7ff",
+                        "on-secondary-container": "#5f656c",
+                        "on-tertiary-fixed-variant": "#7c2e00",
+                        "secondary-container": "#dde3eb",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2d3133",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#351000",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#fffbff",
+                        "primary-container": "#0070ea",
+                        "background": "#f7f9fb",
+                        "on-primary-fixed": "#001a41",
+                        "on-primary-container": "#fefcff",
+                        "secondary-fixed": "#dde3eb",
+                        "surface-dim": "#d8dadc",
+                        "inverse-primary": "#adc7ff",
+                        "surface-container": "#eceef0",
+                        "on-surface": "#191c1e",
+                        "outline-variant": "#c1c6d7",
+                        "secondary-fixed-dim": "#c1c7cf",
+                        "on-secondary-fixed-variant": "#41474e",
+                        "tertiary": "#9e3d00",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .cad-grid {
+            background-size: 40px 40px;
+            background-image: radial-gradient(circle, #e0e3e5 1px, transparent 1px);
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
+    <!-- TopNavBar Shell -->
+    <header class="fixed top-0 w-full z-50 bg-[#f7f9fb]/80 backdrop-blur-xl dark:bg-[#121212]/80">
+        <div class="flex justify-between items-center px-8 py-4 max-w-full font-['Plus_Jakarta_Sans'] tracking-tight">
+            <div class="text-xl font-bold tracking-tighter text-slate-900 dark:text-white">Digital Atelier CAD</div>
+            <nav class="hidden md:flex gap-8 items-center">
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                    href="#">Drafting</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                    href="#">Library</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                    href="#">Patterns</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                    href="#">Workspaces</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <button
+                    class="material-symbols-outlined p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors rounded-lg">settings</button>
+                <button
+                    class="material-symbols-outlined p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors rounded-lg">help</button>
+                <button
+                    class="bg-primary hover:bg-primary-container text-white px-5 py-2 text-sm font-semibold rounded-lg transition-all active:opacity-80 scale-98">Upgrade
+                    Plan</button>
+            </div>
+        </div>
+        <div class="bg-[#f2f4f6] dark:bg-slate-800 h-[1px] w-full"></div>
+    </header>
+    <main class="pt-24 pb-20 cad-grid min-h-screen">
+        <div class="max-w-7xl mx-auto px-8">
+            <!-- Hero Header Section -->
+            <div class="mb-16 mt-12 max-w-2xl">
+                <span class="text-primary font-bold tracking-widest text-xs uppercase mb-4 block">Engineered for
+                    Accuracy</span>
+                <h1 class="text-5xl font-extrabold tracking-tighter text-on-surface mb-6 leading-tight">Elevate your
+                    precision to industrial standards.</h1>
+                <p class="text-lg text-on-surface-variant leading-relaxed font-medium">Choose the tier that aligns with
+                    your production volume. From bespoke tailoring to global manufacturing.</p>
+            </div>
+            <!-- Pricing Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                <!-- Tier 1: GONI NODE -->
+                <div
+                    class="bg-surface-container-low p-8 rounded-lg flex flex-col h-full group hover:bg-surface-container transition-colors duration-300">
+                    <div class="mb-8">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-sm font-bold text-on-surface-variant">NODE</span>
+                            <div class="h-1 w-1 bg-outline rounded-full"></div>
+                            <span class="text-xs text-on-surface-variant uppercase tracking-widest">Entry Level</span>
+                        </div>
+                        <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-2">GONI NODE</h2>
+                        <p class="text-sm text-on-surface-variant italic">"Try the power of digital pattern making"</p>
+                    </div>
+                    <div class="mb-10">
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-4xl font-extrabold text-on-surface">$0</span>
+                            <span class="text-on-surface-variant font-medium">/ mo</span>
+                        </div>
+                        <p class="text-sm text-on-surface-variant mt-2">Perfect for Students and Hobbyists.</p>
+                    </div>
+                    <div class="flex-grow space-y-4 mb-10">
+                        <p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Capabilities
+                        </p>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+                            <p class="text-sm text-on-surface font-medium">Basic patterns only</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+                            <p class="text-sm text-on-surface font-medium">3 monthly downloads</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+                            <p class="text-sm text-on-surface font-medium">2 measure profiles</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+                            <p class="text-sm text-on-surface font-medium">Standard parametric engine</p>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full py-4 bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-bold rounded-lg transition-all">Get
+                        Started Free</button>
+                </div>
+                <!-- Tier 2: GONI TRACE (Recommended) -->
+                <div
+                    class="bg-surface-container-lowest p-8 rounded-lg flex flex-col h-full relative ring-2 ring-primary shadow-2xl scale-105 z-10">
+                    <div
+                        class="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-1 text-[10px] font-extrabold uppercase tracking-[0.2em] rounded-full">
+                        Most Popular</div>
+                    <div class="mb-8">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-sm font-bold text-primary">TRACE</span>
+                            <div class="h-1 w-1 bg-primary rounded-full"></div>
+                            <span class="text-xs text-on-surface-variant uppercase tracking-widest">Professional</span>
+                        </div>
+                        <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-2">GONI TRACE</h2>
+                        <p class="text-sm text-on-surface-variant italic">"Digitalize your workshop with full access"
+                        </p>
+                    </div>
+                    <div class="mb-10">
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-4xl font-extrabold text-on-surface">$5</span>
+                            <span class="text-on-surface-variant font-medium">/ mo</span>
+                        </div>
+                        <p class="text-sm text-on-surface-variant mt-2">Independent pattern makers and tailors.</p>
+                    </div>
+                    <div class="flex-grow space-y-4 mb-10">
+                        <p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Core Tech</p>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+                            <p class="text-sm text-on-surface font-medium">Full library (Dresses, Blazers, etc.)</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+                            <p class="text-sm text-on-surface font-medium">10 monthly downloads</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+                            <p class="text-sm text-on-surface font-medium">10 measure profiles</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+                            <p class="text-sm text-on-surface font-medium">Advanced Catmull-Rom curve editing</p>
+                        </div>
+                        <div class="flex items-start gap-3 opacity-60">
+                            <span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+                            <p class="text-sm text-on-surface font-medium">Cloud Workspace Sync</p>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full py-4 bg-gradient-to-br from-primary to-primary-container text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all scale-100 active:scale-95">Upgrade
+                        to Trace</button>
+                </div>
+                <!-- Tier 3: GONI BLOCK -->
+                <div
+                    class="bg-surface-container-low p-8 rounded-lg flex flex-col h-full group hover:bg-surface-container transition-colors duration-300">
+                    <div class="mb-8">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-sm font-bold text-on-surface-variant">BLOCK</span>
+                            <div class="h-1 w-1 bg-outline rounded-full"></div>
+                            <span class="text-xs text-on-surface-variant uppercase tracking-widest">Industrial</span>
+                        </div>
+                        <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-2">GONI BLOCK</h2>
+                        <p class="text-sm text-on-surface-variant italic">"The definitive tool for industrial
+                            production"</p>
+                    </div>
+                    <div class="mb-10">
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-4xl font-extrabold text-on-surface">$20</span>
+                            <span class="text-on-surface-variant font-medium">/ mo</span>
+                        </div>
+                        <p class="text-sm text-on-surface-variant mt-2">Factories and high-volume producers.</p>
+                    </div>
+                    <div class="flex-grow space-y-4 mb-10">
+                        <p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Enterprise
+                            Suite</p>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+                            <p class="text-sm text-on-surface font-medium">Full library + Early Access</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+                            <p class="text-sm text-on-surface font-medium">Unlimited downloads &amp; profiles</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+                            <p class="text-sm text-on-surface font-medium">Auto-Nesting &amp; Grading Automation</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+                            <p class="text-sm text-on-surface font-medium">Priority Support &amp; API Access</p>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full py-4 bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-bold rounded-lg transition-all">Go
+                        Industrial</button>
+                </div>
+            </div>
+            <!-- Featured Section (Asymmetric) -->
+            <div class="mt-24 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="relative rounded-lg overflow-hidden h-[400px] bg-surface-container">
+                    <img alt="Pattern drafting interface"
+                        class="w-full h-full object-cover mix-blend-overlay opacity-80"
+                        data-alt="Technical CAD interface showing complex garment pattern lines on a precise digital grid with blue accent highlights"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMtfl4LPMEQJb5y-PXOpuaG2KT3UDUjU9EVD1NcebaLR5G0ifD8J8lPBPfchKPnPxchNCkaFIxr7QLUbw3vTSrLF2F58fPCX1gigJfDx5qfXHwHcE_HHEcsuvLvIXfazpRKD3s97TcI2Nin6laJmHN1zED73s_p8IxEq-3t_HmJhRnQJtQrzfSJoOQ5Tbcc_O_aGxwvhTIRqZrvW5UPcReQyAevTAxu60Qa7CZ516BnYxko1bu6fT-8PVxYAGFjToH97sfrAEb-tho" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-background to-transparent"></div>
+                    <div class="absolute bottom-8 left-8 right-8">
+                        <span class="text-primary font-bold text-xs uppercase tracking-widest block mb-2">Precision
+                            Curve Engine</span>
+                        <h3 class="text-2xl font-bold text-on-surface">Bezier curves optimized for textile elasticity.
+                        </h3>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <h4 class="text-3xl font-extrabold tracking-tight">Standardizing the Modern Atelier.</h4>
+                    <p class="text-on-surface-variant leading-relaxed">Our platform integrates directly with industrial
+                        cutters. Whether you are scaling a single bodice or managing a multi-continental production
+                        line, our metadata remains intact.</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-surface-container-low rounded">
+                            <span class="block text-2xl font-bold text-primary">0.01mm</span>
+                            <span class="text-xs text-on-surface-variant font-semibold uppercase">Tolerance Level</span>
+                        </div>
+                        <div class="p-4 bg-surface-container-low rounded">
+                            <span class="block text-2xl font-bold text-primary">DXF/AAMA</span>
+                            <span class="text-xs text-on-surface-variant font-semibold uppercase">Export
+                                Standards</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Footer Shell -->
+    <footer
+        class="w-full py-12 mt-auto bg-[#f7f9fb] dark:bg-[#121212] border-t border-slate-200/20 dark:border-slate-800/20">
+        <div
+            class="flex flex-col items-center gap-4 text-center px-8 font-['Plus_Jakarta_Sans'] text-xs uppercase tracking-widest">
+            <div class="flex gap-8 mb-4">
+                <a class="text-slate-400 dark:text-slate-600 hover:text-blue-500 transition-colors" href="#">Privacy
+                    Policy</a>
+                <a class="text-slate-400 dark:text-slate-600 hover:text-blue-500 transition-colors" href="#">Terms of
+                    Service</a>
+                <a class="text-slate-400 dark:text-slate-600 hover:text-blue-500 transition-colors" href="#">CAD
+                    Standards</a>
+                <a class="text-slate-400 dark:text-slate-600 hover:text-blue-500 transition-colors" href="#">API
+                    Docs</a>
+            </div>
+            <p class="text-slate-400 dark:text-slate-600">© 2024 Digital Atelier CAD. High-Precision Pattern
+                Engineering.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

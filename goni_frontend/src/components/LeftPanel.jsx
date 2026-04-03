@@ -5,10 +5,11 @@ import { profilesApi, patternsApi } from "../api/client";
  * Left panel: measurement profile selector + body measurement inputs.
  *
  * Props:
+ *   user          – current authenticated user (reload profiles when changes)
  *   templateId    – currently selected template
- *   onCompute(patternData) – called when user clicks "Generar Molde"
+ *   onCompute(patternData, profileId) – called when user clicks "Generar Molde"
  */
-export default function LeftPanel({ templateId, onCompute }) {
+export default function LeftPanel({ user, templateId, onCompute }) {
   const [profiles, setProfiles] = useState([]);
   const [selectedProfileId, setSelectedProfileId] = useState(null);
   const [newProfileName, setNewProfileName] = useState("");
@@ -18,13 +19,19 @@ export default function LeftPanel({ templateId, onCompute }) {
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
 
-  // Load profiles on mount
+  // Load profiles whenever the logged-in user changes (fixes: profiles not shown after login)
   useEffect(() => {
+    if (!user) {
+      setProfiles([]);
+      setSelectedProfileId(null);
+      return;
+    }
     profilesApi.list().then((p) => {
       setProfiles(p);
       if (p.length > 0) setSelectedProfileId(p[0].id);
+      else setSelectedProfileId(null);
     }).catch(() => {});
-  }, []);
+  }, [user]);
 
   // When template changes, fetch required measurement keys
   useEffect(() => {

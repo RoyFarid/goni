@@ -11,7 +11,17 @@ const authHeaders = () => ({
 async function handleResponse(res) {
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || "Error desconocido");
+    const msg = err.detail || "Error desconocido";
+
+    // ── Token inválido / expirado → logout automático ─────────────────────
+    if (res.status === 401) {
+      localStorage.removeItem("ep_token");
+      localStorage.removeItem("ep_user");
+      // Notifica a la app para que actualice el estado de autenticación
+      window.dispatchEvent(new CustomEvent("goni:unauthorized", { detail: msg }));
+    }
+
+    throw new Error(msg);
   }
   return res.json();
 }
