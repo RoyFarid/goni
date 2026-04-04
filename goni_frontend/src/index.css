@@ -1764,3 +1764,80 @@ body {
   letter-spacing: 1px;
   text-align: center;
 }
+
+/* ─── Fabric Library Items ────────── */
+.fabric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.fabric-card {
+  background: var(--surface-white);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s;
+  border-left: 4px solid var(--primary);
+  display: flex;
+  flex-direction: column;
+}
+.fabric-card:hover { 
+  transform: translateY(-4px); 
+  box-shadow: var(--shadow-md); 
+}
+.fabric-card.dashed {
+  border: 2px dashed var(--outline-variant);
+  background: var(--surface-white);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--secondary);
+  font-weight: 700;
+  min-height: 180px;
+}
+.fabric-card.dashed:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(0, 123, 255, 0.05);
+}
+.fabric-preview {
+  height: 80px;
+  background-color: var(--surface-low);
+  position: relative;
+}
+.fabric-tag {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.05);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+.fabric-info { padding: 14px 16px; flex: 1; }
+.fabric-title-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
+.fabric-title { font-size: 15px; font-weight: 700; color: var(--on-surface); }
+.fabric-price { font-size: 13px; font-weight: 800; color: var(--primary); }
+.fabric-material { font-size: 11px; color: var(--secondary); margin-bottom: 12px; font-weight: 600; }
+
+.fabric-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--surface-low);
+}
+.fs-item { display: flex; flex-direction: column; gap: 2px; }
+.fs-label { font-size: 9px; font-weight: 800; color: var(--outline); text-transform: uppercase; letter-spacing: 0.5px; }
+.fs-value { font-size: 12px; font-weight: 600; color: var(--on-surface); }
+.fs-value span.hl { color: var(--primary); font-weight: 800; font-family: monospace; font-size: 11px;}
+
+.fabric-actions {
+  display: flex; justify-content: flex-end; gap: 8px;
+  margin-top: 12px; padding-top: 10px;
+  border-top: 1px dashed var(--surface-high);
+}
+

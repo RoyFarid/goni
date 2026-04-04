@@ -16,8 +16,13 @@ function AppInner() {
   const [activeView, setActiveView] = useState("workspace"); // "workspace" | "library"
   const [showLogin, setShowLogin] = useState(false);
   const [templates, setTemplates] = useState([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState(null);
-  const [selectedProfileId, setSelectedProfileId] = useState(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState(() => {
+    const saved = localStorage.getItem("goni_selected_template");
+    return saved ? Number(saved) : null;
+  });
+  const [selectedProfileId, setSelectedProfileId] = useState(() => {
+    return localStorage.getItem("goni_selected_profile") || null;
+  });
   const [pattern, setPattern] = useState(null); // PatternResponse from API
   const [showPlansModal, setShowPlansModal] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
@@ -45,6 +50,15 @@ function AppInner() {
       }
     }).catch(() => { });
   }, [activeUser]);
+
+  // When template or profile changes, save them to localStorage
+  useEffect(() => {
+    if (selectedTemplateId) localStorage.setItem("goni_selected_template", selectedTemplateId);
+  }, [selectedTemplateId]);
+
+  useEffect(() => {
+    if (selectedProfileId) localStorage.setItem("goni_selected_profile", selectedProfileId);
+  }, [selectedProfileId]);
 
   // When session expires → open login modal automatically
   useEffect(() => {

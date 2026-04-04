@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { profilesApi, patternsApi } from "../api/client";
+import { profilesApi, patternsApi, fabricsApi } from "../api/client";
 
 /**
  * Left panel: measurement profile selector + body measurement inputs.
@@ -15,6 +15,16 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
   const [measurements, setMeasurements] = useState({});
   const [status, setStatus] = useState(null); // {type:'ok'|'err', msg}
   const [loading, setLoading] = useState(false);
+
+  // Fabric State
+  const [fabrics, setFabrics] = useState([]);
+  const [selectedFabricId, setSelectedFabricId] = useState(() => {
+    return localStorage.getItem("goni_selected_fabric") || "";
+  });
+
+  useEffect(() => {
+    if (selectedFabricId) localStorage.setItem("goni_selected_fabric", selectedFabricId);
+  }, [selectedFabricId]);
 
   // Load profiles whenever the logged-in user (or guest) changes
   useEffect(() => {
@@ -38,7 +48,10 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
       profilesApi.list().then((p) => {
         setProfiles(p);
         if (p.length > 0 && !selectedProfileId) setProfileId(p[0].id);
-      }).catch(() => {});
+      }).catch(() => { });
+
+      // Cargar telas del usuario
+      fabricsApi.list().then(setFabrics).catch(() => { });
     }
   }, [user]);
 
@@ -47,7 +60,7 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
     if (!templateId) return;
     patternsApi.requiredMeasurements(templateId).then((data) => {
       setRequiredKeys(data.measurement_keys);
-    }).catch(() => {});
+    }).catch(() => { });
   }, [templateId]);
 
   // When profile or template changes, load its existing measurements
@@ -71,7 +84,7 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
           .filter((m) => m.template_id === templateId)
           .forEach((m) => { map[m.measurement_key] = String(m.value_cm); });
         setMeasurements(map);
-      }).catch(() => {});
+      }).catch(() => { });
     }
   }, [selectedProfileId, templateId, user]);
 
@@ -103,10 +116,10 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
       } else {
         // Regular flow
         await profilesApi.saveMeasurements(selectedProfileId, templateId, items);
-        pattern = await patternsApi.compute(templateId, selectedProfileId);
+        pattern = await patternsApi.compute(templateId, selectedProfileId, selectedFabricId);
       }
 
-      onCompute(pattern, selectedProfileId);
+      onCompute(pattern, selectedProfileId, selectedFabricId);
       setStatus({ type: "ok", msg: "Molde generado ✓" });
     } catch (err) {
       setStatus({ type: "err", msg: err.message });
@@ -160,6 +173,59 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
             ))}
           </select>
         </div>
+
+        <div className="section-label">Tela del Proyecto</div>
+
+        {/* Fabric selector */}
+        <div className="field-group">
+          <select
+            value={selectedFabricId}
+            onChange={(e) => setSelectedFabricId(e.target.value)}
+          >
+            <option value="" disabled>Seleccionar tela (Opc.: Tela base)…</option>
+            {fabrics.map((f) => (
+              <option key={f.id} value={f.id}>{f.name} {f.material ? `(${f.material})` : ''}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Fabric Specs Pill */}
+        {selectedFabricId && fabrics.find(f => f.id === Number(selectedFabricId)) && (() => {
+          const f = fabrics.find(fab => fab.id === Number(selectedFabricId));
+          return (
+            <div style={{
+              marginTop: "8px",
+              padding: "10px",
+              background: "var(--surface-white)",
+              border: "1px solid var(--outline-variant)",
+              borderRadius: "6px",
+              borderLeft: "3px solid var(--primary)",
+              boxShadow: "var(--shadow-sm)"
+            }}>
+              <div style={{ fontSize: "9px", textTransform: "uppercase", fontWeight: "800", color: "var(--outline)", marginBottom: "4px" }}>
+                Factor de Elasticidad
+              </div>
+              <div style={{ display: "flex", gap: "16px", marginBottom: "8px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px", color: "var(--primary)" }}>swap_horiz</span>
+                  <span style={{ fontSize: "11px", fontWeight: "800" }}>{f.stretch_horizontal || 0}%</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px", color: "var(--primary)" }}>swap_vert</span>
+                  <span style={{ fontSize: "11px", fontWeight: "800" }}>{f.stretch_vertical || 0}%</span>
+                </div>
+              </div>
+
+              <div style={{ fontSize: "9px", textTransform: "uppercase", fontWeight: "800", color: "var(--outline)", marginBottom: "4px" }}>
+                Encogimiento
+              </div>
+              <div style={{ display: "flex", gap: "12px" }}>
+                <span style={{ fontSize: "10px", fontWeight: "600", color: "var(--secondary)" }}>Urdimbre: {f.shrinkage_warp || 0}%</span>
+                <span style={{ fontSize: "10px", fontWeight: "600", color: "var(--secondary)" }}>Trama: {f.shrinkage_weft || 0}%</span>
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Body measurements */}

@@ -12,6 +12,7 @@ from config import get_settings
 from routes.auth_routes import router as auth_router
 from routes.profiles_routes import router as profiles_router
 from routes.patterns_routes import router as patterns_router
+from routes.fabrics_routes import router as fabrics_router
 
 settings = get_settings()
 
@@ -34,6 +35,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(profiles_router)
 app.include_router(patterns_router)
+app.include_router(fabrics_router)
 
 
 @app.get("/", tags=["health"])

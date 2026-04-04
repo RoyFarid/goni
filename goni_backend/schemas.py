@@ -81,3 +81,18 @@ class PatternResponse(BaseModel):
 class GuestComputeRequest(BaseModel):
     guest_id: str
     measurements: list[BodyMeasurementItem]
+
+
+# ─── Fabrics ──────────────────────────────────────────────────────────────────
+class FabricCreate(BaseModel):
+    name: str
+    material: Optional[str] = None
+    width_cm: Optional[float] = None
+    weight_gsm: Optional[int] = None
+    stretch_horizontal: Optional[float] = None
+    stretch_vertical: Optional[float] = None
+    shrinkage_warp: Optional[float] = None
+    shrinkage_weft: Optional[float] = None
+    inclination: Optional[str] = None
+    color_hex: Optional[str] = None
+    cost_per_meter: Optional[float] = None

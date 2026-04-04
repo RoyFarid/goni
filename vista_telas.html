@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Digital Atelier - Fabric Library</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "background": "#f7f9fb",
+                      "primary": "#0059bb",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-fixed": "#351000",
+                      "secondary": "#595f66",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed-variant": "#004493",
+                      "tertiary-fixed-dim": "#ffb695",
+                      "secondary-fixed": "#dde3eb",
+                      "tertiary": "#9e3d00",
+                      "surface-dim": "#d8dadc",
+                      "secondary-container": "#dde3eb",
+                      "surface-tint": "#005bc0",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed-variant": "#41474e",
+                      "surface-bright": "#f7f9fb",
+                      "secondary-fixed-dim": "#c1c7cf",
+                      "outline-variant": "#c1c6d7",
+                      "surface-container-low": "#f2f4f6",
+                      "on-primary-container": "#fefcff",
+                      "inverse-on-surface": "#eff1f3",
+                      "tertiary-fixed": "#ffdbcc",
+                      "on-tertiary-fixed-variant": "#7c2e00",
+                      "inverse-surface": "#2d3133",
+                      "on-background": "#191c1e",
+                      "tertiary-container": "#c64f00",
+                      "on-surface-variant": "#414754",
+                      "surface-variant": "#e0e3e5",
+                      "primary-container": "#0070ea",
+                      "on-primary-fixed": "#001a41",
+                      "surface": "#f7f9fb",
+                      "primary-fixed": "#d8e2ff",
+                      "on-primary": "#ffffff",
+                      "surface-container-highest": "#e0e3e5",
+                      "outline": "#717786",
+                      "on-surface": "#191c1e",
+                      "on-secondary-fixed": "#161c22",
+                      "inverse-primary": "#adc7ff",
+                      "surface-container-high": "#e6e8ea",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#5f656c",
+                      "surface-container": "#eceef0",
+                      "primary-fixed-dim": "#adc7ff",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-container": "#fffbff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Plus Jakarta Sans"],
+                      "body": ["Plus Jakarta Sans"],
+                      "label": ["Plus Jakarta Sans"]
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        /* Precision CAD Lines */
+        .technical-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(113, 119, 134, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(113, 119, 134, 0.05) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background technical-grid min-h-screen">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/20 flex justify-between items-center px-6 h-16 w-full font-['Plus_Jakarta_Sans'] antialiased">
+<div class="flex items-center gap-8">
+<span class="text-lg font-bold tracking-tight text-slate-900">Digital Atelier</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-slate-500 hover:text-slate-900 transition-colors" href="#">Workspace</a>
+<a class="text-blue-600 border-b-2 border-blue-600 pb-1" href="#">Library</a>
+<a class="text-slate-500 hover:text-slate-900 transition-colors" href="#">Community</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-outline text-sm">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-surface-container-low border-none focus:ring-1 focus:ring-primary text-sm w-64 rounded-DEFAULT transition-all" placeholder="Search patterns or fabrics..." type="text"/>
+</div>
+<button class="p-2 hover:bg-slate-200/50 transition-colors rounded-full"><span class="material-symbols-outlined">notifications</span></button>
+<button class="p-2 hover:bg-slate-200/50 transition-colors rounded-full"><span class="material-symbols-outlined">settings</span></button>
+<img class="w-8 h-8 rounded-full object-cover border border-outline-variant/20" data-alt="Close up portrait of a professional fashion designer with glasses in a studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvQPDwQ3PBfzjs_AIQweM80IBSI0OZYys7PAHq0u46vk2OIIf2WRPTUI4F6SgS1OG-IG84aZpdv1juadc5c7cIz3uO8w2uv2waN3ZHo1v8cuSVmlzWqVZ7qSY3D0PezybeWTkKR6TWXD2onZhonBkWYWRz0WqQXnOR-vl4ZNqcIqHs-eWpkiEWd7VeoOHXxtI4nVSLg_3ATmXF0mXrAWXodPics5MRnS5xQl_oQBQI_QTFp0toN1JcZpzP9FSeywQvMD8U-7Eaeekb"/>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-16 bg-slate-100 flex flex-col py-4 gap-2 font-['Plus_Jakarta_Sans'] text-sm font-medium border-r border-slate-200/20">
+<div class="px-6 py-4 flex flex-col gap-1">
+<span class="text-[10px] uppercase tracking-widest text-outline font-bold">Manager</span>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-container-highest flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-primary text-lg">texture</span>
+</div>
+<div>
+<p class="text-on-surface font-bold">Library Manager</p>
+<p class="text-[10px] text-outline">Technical Precision</p>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-1 px-3">
+<a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+<span>All Patterns</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">accessibility_new</span>
+<span>Body Profiles</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 bg-white text-blue-600 border-l-4 border-blue-600 shadow-sm transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">texture</span>
+<span>Fabric Library</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]">ios_share</span>
+<span>Export Logs</span>
+</a>
+</nav>
+<div class="mt-auto px-4">
+<button class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-white text-xs font-bold uppercase tracking-widest rounded-DEFAULT shadow-lg hover:opacity-90 active:scale-95 transition-all">
+                Create New Pattern
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-20 p-8 min-h-screen">
+<div class="max-w-7xl mx-auto">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<nav class="flex items-center gap-2 text-xs text-outline mb-2">
+<span>Library</span>
+<span class="material-symbols-outlined text-[12px]">chevron_right</span>
+<span class="text-primary font-medium">Fabric Library</span>
+</nav>
+<h1 class="text-3xl font-extrabold tracking-tight text-on-background">Biblioteca de Telas</h1>
+<p class="text-sm text-on-surface-variant mt-1">Manage technical material properties and manufacturing specifications.</p>
+</div>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-surface-container-lowest text-on-surface text-sm font-semibold rounded-lg shadow-sm hover:bg-surface-container-low transition-all border border-outline-variant/10">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                    Add New Fabric
+                </button>
+</div>
+<!-- Filters Bar -->
+<div class="bg-surface-container-low/50 glass-panel p-4 mb-8 flex flex-wrap items-center gap-6 border-b-2 border-primary/20">
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-bold uppercase text-outline tracking-wider">Material</label>
+<select class="bg-surface-container-lowest border-none text-xs font-medium py-1.5 px-3 rounded-DEFAULT focus:ring-1 focus:ring-primary min-w-[140px]">
+<option>All Materials</option>
+<option>100% Cotton</option>
+<option>Polyester Blend</option>
+<option>Silk</option>
+<option>Wool</option>
+</select>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-bold uppercase text-outline tracking-wider">Weight (GSM)</label>
+<select class="bg-surface-container-lowest border-none text-xs font-medium py-1.5 px-3 rounded-DEFAULT focus:ring-1 focus:ring-primary min-w-[140px]">
+<option>All Weights</option>
+<option>Light (&lt; 150)</option>
+<option>Medium (150-250)</option>
+<option>Heavy (&gt; 250)</option>
+</select>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-bold uppercase text-outline tracking-wider">Stretch</label>
+<select class="bg-surface-container-lowest border-none text-xs font-medium py-1.5 px-3 rounded-DEFAULT focus:ring-1 focus:ring-primary min-w-[140px]">
+<option>Any Stretch</option>
+<option>Rigid (0-2%)</option>
+<option>Natural (2-8%)</option>
+<option>High Elasticity (8%+)</option>
+</select>
+</div>
+<div class="ml-auto flex items-center gap-2">
+<button class="p-2 text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">filter_list</span></button>
+<button class="p-2 text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">view_module</span></button>
+<button class="p-2 text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">format_list_bulleted</span></button>
+</div>
+</div>
+<!-- Fabric Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest group relative overflow-hidden transition-all duration-300 hover:translate-y-[-4px] hover:shadow-[0px_12px_32px_rgba(25,28,30,0.06)] border-l-2 border-primary">
+<div class="relative h-32 overflow-hidden bg-slate-200">
+<img class="w-full h-full object-cover grayscale-[0.3] group-hover:scale-105 transition-transform duration-700" data-alt="Macro texture of high-quality jersey knit fabric with clean white weave patterns and soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDffiUFPCRqdsm5qnrjycE_b9R3O9Pepn_aRVblfX9TiwZwnpvGbP32qFUo1mEMLydjwhNcP2rH_VN0xunYSf3k_he1dP6pau6ZcSRGTG8Olfmp-WbFdFv6exvvzGguaNJtUidkwjpQHJ-dglLag2PB6xXawC8AbVddyGIhvrgTqTNIShmBKxoYLOuI6DHH74z6JwvCxY7m3n_BoQXCO1qyM8fLtw7k_3_8fsdTP8UFnFY0AtmeTnMgNAYmdSeaLiNUL6AsQeOJ5JQo"/>
+<div class="absolute top-2 right-2 bg-white/90 glass-panel px-2 py-1 rounded text-[10px] font-bold tracking-tighter uppercase text-primary border border-primary/20">
+                            Directional
+                        </div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-bold text-on-surface leading-tight">Jersey 30/1 Peinado</h3>
+<p class="text-xs text-outline font-medium">100% Algodón</p>
+</div>
+<span class="text-primary font-extrabold text-sm">$8.50 / m</span>
+</div>
+<!-- Technical Specs Grid -->
+<div class="grid grid-cols-2 gap-y-4 gap-x-6 border-t border-slate-100 pt-4">
+<div class="flex flex-col gap-0.5">
+<span class="text-[9px] uppercase font-bold text-outline">Weight (GSM)</span>
+<span class="text-xs font-semibold">180 g/m²</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="text-[9px] uppercase font-bold text-outline">Shrinkage (W/W)</span>
+<span class="text-xs font-semibold text-tertiary">S: 3% / 1%</span>
+</div>
+<div class="col-span-2">
+<span class="text-[9px] uppercase font-bold text-outline mb-1 block">Stretch Grid (%)</span>
+<div class="flex gap-4">
+<div class="flex items-center gap-1.5 bg-surface-container-low px-2 py-1 rounded-sm w-full">
+<span class="text-[10px] font-bold text-primary">H</span>
+<span class="text-xs font-mono">5%</span>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-2 py-1 rounded-sm w-full">
+<span class="text-[10px] font-bold text-primary">V</span>
+<span class="text-xs font-mono">2%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Actions Overlay -->
+<div class="flex justify-end gap-3 mt-6 border-t border-slate-50 pt-3">
+<button class="p-1.5 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">content_copy</span></button>
+<button class="p-1.5 text-slate-400 hover:text-error transition-colors"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest group relative overflow-hidden transition-all duration-300 hover:translate-y-[-4px] hover:shadow-[0px_12px_32px_rgba(25,28,30,0.06)] border-l-2 border-slate-400">
+<div class="relative h-32 overflow-hidden bg-slate-200">
+<img class="w-full h-full object-cover grayscale-[0.3] group-hover:scale-105 transition-transform duration-700" data-alt="Technical view of denim fabric twill weave with deep indigo dye and sharp detail lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGN6HS8Qrjk_TyqUbkvPMgAOswHJ3OoW8WdgZs7khO9tQZ179AjTgrVUXqDcGM7dqKa8rrWsccah0ujlyadBBLmKzbhFEAVJoSsCDPgGEMe3cLisVai7k31Hum47s8fSgTSGVMcTmmuF8jr1TxRotpQb4NEacOqs8bQKY4giocYRJvSjaxv6CQh0-VGNhj8llLUW7rPR7p_iPisPld2xAq4j7H9AWPiy0NR9nBVtCrhootOUDDlrGHC8Q5pD8TzA7tf6wIjJBUqqjl"/>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-bold text-on-surface leading-tight">Denim Stretch 12oz</h3>
+<p class="text-xs text-outline font-medium">98% Alg / 2% Ela</p>
+</div>
+<span class="text-primary font-extrabold text-sm">$12.20 / m</span>
+</div>
+<div class="grid grid-cols-2 gap-y-4 gap-x-6 border-t border-slate-100 pt-4">
+<div class="flex flex-col gap-0.5">
+<span class="text-[9px] uppercase font-bold text-outline">Weight (GSM)</span>
+<span class="text-xs font-semibold">340 g/m²</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="text-[9px] uppercase font-bold text-outline">Shrinkage (W/W)</span>
+<span class="text-xs font-semibold text-tertiary">S: 4.5% / 2%</span>
+</div>
+<div class="col-span-2">
+<span class="text-[9px] uppercase font-bold text-outline mb-1 block">Stretch Grid (%)</span>
+<div class="flex gap-4">
+<div class="flex items-center gap-1.5 bg-surface-container-low px-2 py-1 rounded-sm w-full">
+<span class="text-[10px] font-bold text-primary">H</span>
+<span class="text-xs font-mono">18%</span>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-2 py-1 rounded-sm w-full">
+<span class="text-[10px] font-bold text-primary">V</span>
+<span class="text-xs font-mono">4%</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex justify-end gap-3 mt-6 border-t border-slate-50 pt-3">
+<button class="p-1.5 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">content_copy</span></button>
+<button class="p-1.5 text-slate-400 hover:text-error transition-colors"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest group relative overflow-hidden transition-all duration-300 hover:translate-y-[-4px] hover:shadow-[0px_12px_32px_rgba(25,28,30,0.06)] border-l-2 border-primary">
+<div class="relative h-32 overflow-hidden bg-slate-200">
+<img class="w-full h-full object-cover grayscale-[0.3] group-hover:scale-105 transition-transform duration-700" data-alt="Lightweight silk charmeuse fabric with fluid drapes and elegant sheen under soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpeDN-PTYsci-xgSnrwBYnESoqghBahTuXWSCb0VBikZvVecsq3oEwxpAu0BmULIzm6A3uM8UcLVUJg9ijT8dYF9YuhdSjdVI-45_T2_Rh11Z2i9jQ8ACO08nMXDWyBkMa1u0c2zgcA44S5WBptaijlZDEldmvveROiEFDcelJheLT3cWQq8MiOSiouXDl2OcMJ6gVpLAIS6t9PGfRrjyDSrsHufoLY27vEexZXOFTslm07xlxUg5onNHfF83aYN7MB5rohG_Oh2XT"/>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-bold text-on-surface leading-tight">Seda Charmeuse</h3>
+<p class="text-xs text-outline font-medium">100% Seda Natural</p>
+</div>
+<span class="text-primary font-extrabold text-sm">$45.00 / m</span>
+</div>
+<div class="grid grid-cols-2 gap-y-4 gap-x-6 border-t border-slate-100 pt-4">
+<div class="flex flex-col gap-0.5">
+<span class="text-[9px] uppercase font-bold text-outline">Weight (GSM)</span>
+<span class="text-xs font-semibold">65 g/m²</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="text-[9px] uppercase font-bold text-outline">Shrinkage (W/W)</span>
+<span class="text-xs font-semibold text-tertiary">S: 1% / 0.5%</span>
+</div>
+<div class="col-span-2">
+<span class="text-[9px] uppercase font-bold text-outline mb-1 block">Stretch Grid (%)</span>
+<div class="flex gap-4">
+<div class="flex items-center gap-1.5 bg-surface-container-low px-2 py-1 rounded-sm w-full">
+<span class="text-[10px] font-bold text-primary">H</span>
+<span class="text-xs font-mono">2%</span>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-2 py-1 rounded-sm w-full">
+<span class="text-[10px] font-bold text-primary">V</span>
+<span class="text-xs font-mono">1%</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex justify-end gap-3 mt-6 border-t border-slate-50 pt-3">
+<button class="p-1.5 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">content_copy</span></button>
+<button class="p-1.5 text-slate-400 hover:text-error transition-colors"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</div>
+</div>
+<!-- Add New Fabric Card (Dashed) -->
+<button class="h-full min-h-[380px] border-2 border-dashed border-outline-variant/40 hover:border-primary/50 flex flex-col items-center justify-center gap-4 transition-all group bg-surface-container-low/20">
+<div class="w-12 h-12 rounded-full border border-outline-variant/40 flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-outline group-hover:text-primary">add</span>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold text-on-surface-variant group-hover:text-primary">Add New Fabric</p>
+<p class="text-[10px] text-outline uppercase tracking-wider">Create technical spec sheet</p>
+</div>
+</button>
+</div>
+</div>
+</main>
+<!-- FAB for quick action -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[60]">
+<span class="material-symbols-outlined">add</span>
+</button>
+</body></html>

@@ -108,7 +108,7 @@ def _run_computation(logic_rows, body_meas, path_rows, template_name):
         })
     return template_name, points, paths, technicals
 
-def _load_and_compute(template_id: int, profile_id: str, user_id: str):
+def _load_and_compute(template_id: int, profile_id: str, user_id: str, fabric_id: int = None):
     with get_db() as conn:
         cur = dict_cursor(conn)
         cur.execute("SELECT id FROM measurement_profiles WHERE id = %s AND user_id = %s", (profile_id, user_id))
@@ -117,6 +117,23 @@ def _load_and_compute(template_id: int, profile_id: str, user_id: str):
         cur.execute("SELECT measurement_key, value_cm FROM body_measurements WHERE profile_id = %s AND template_id = %s", (profile_id, template_id))
         body_meas = {r["measurement_key"]: float(r["value_cm"]) for r in cur.fetchall()}
         
+        # Inject fabric modifiers
+        body_meas["fabric_stretch_h"] = 1.0
+        body_meas["fabric_stretch_v"] = 1.0
+        body_meas["fabric_shrinkage_warp"] = 1.0
+        body_meas["fabric_shrinkage_weft"] = 1.0
+        
+        if fabric_id:
+            cur.execute("SELECT stretch_horizontal, stretch_vertical, shrinkage_warp, shrinkage_weft FROM fabrics WHERE id = %s AND (user_id IS NULL OR user_id = %s)", (fabric_id, user_id))
+            fab = cur.fetchone()
+            if fab:
+                # Elongation reduces pattern size (1 - X%)
+                body_meas["fabric_stretch_h"] = 1.0 - (float(fab["stretch_horizontal"] or 0) / 100.0)
+                body_meas["fabric_stretch_v"] = 1.0 - (float(fab["stretch_vertical"] or 0) / 100.0)
+                # Shrinkage increases pattern size (1 + X%)
+                body_meas["fabric_shrinkage_warp"] = 1.0 + (float(fab["shrinkage_warp"] or 0) / 100.0)
+                body_meas["fabric_shrinkage_weft"] = 1.0 + (float(fab["shrinkage_weft"] or 0) / 100.0)
+                
     name, logic, paths = _get_template_data(template_id)
     return _run_computation(logic, body_meas, paths, name)
 
@@ -126,10 +143,11 @@ def compute_pattern(
     template_id: int,
     profile_id: str,
     request: Request,
+    fabric_id: int = None,
     current_user: dict = Depends(get_current_user),
 ):
     template_name, points, paths, technicals = _load_and_compute(
-        template_id, profile_id, current_user["id"]
+        template_id, profile_id, current_user["id"], fabric_id
     )
     
     # Registro de uso (Registrado - compute)
@@ -153,6 +171,7 @@ def compute_pattern(
 def export_dxf(
     template_id: int, 
     profile_id: str, 
+    fabric_id: int = None,
     user: dict = Depends(get_current_user),
     request: Request = None
 ):
@@ -165,7 +184,7 @@ def export_dxf(
     if count >= limit:
         raise HTTPException(status_code=403, detail=f"Has alcanzado tu límite de {limit} descargas mensuales.")
     
-    name, points, paths, _ = _load_and_compute(template_id, profile_id, user["id"])
+    name, points, paths, _ = _load_and_compute(template_id, profile_id, user["id"], fabric_id)
     
     # Registro de uso (Registrado - export_dxf)
     log_usage(

@@ -69,6 +69,9 @@ export const authApi = {
   logout: () => {
     localStorage.removeItem("ep_token");
     localStorage.removeItem("ep_user");
+    localStorage.removeItem("goni_selected_template");
+    localStorage.removeItem("goni_selected_profile");
+    localStorage.removeItem("goni_selected_fabric");
   },
 
   me: () =>
@@ -131,17 +134,18 @@ export const patternsApi = {
       headers: authHeaders(),
     }).then(handleResponse),
 
-  compute: (templateId, profileId) =>
-    fetch(`${API_BASE}/api/patterns/${templateId}/compute/${profileId}`, {
-      headers: authHeaders(),
-    }).then(handleResponse),
+  compute: (templateId, profileId, fabricId = "") => {
+    let url = `${API_BASE}/api/patterns/${templateId}/compute/${profileId}`;
+    if (fabricId) url += `?fabric_id=${fabricId}`;
+    return fetch(url, { headers: authHeaders() }).then(handleResponse);
+  },
 
-  downloadDxf: async (templateId, profileId, templateName) => {
+  downloadDxf: async (templateId, profileId, templateName, fabricId = "") => {
     const token = getToken();
-    const res = await fetch(
-      `${API_BASE}/api/patterns/${templateId}/compute/${profileId}/dxf`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    let endpoint = `${API_BASE}/api/patterns/${templateId}/compute/${profileId}/dxf`;
+    if (fabricId) endpoint += `?fabric_id=${fabricId}`;
+    
+    const res = await fetch(endpoint, { headers: { Authorization: `Bearer ${token}` } });
     if (!res.ok) throw new Error("Error generando DXF");
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
@@ -179,3 +183,16 @@ export const patternsApi = {
     URL.revokeObjectURL(url);
   },
 };
+
+// ─── Fabrics ──────────────────────────────────────────────────────────────────
+export const fabricsApi = {
+  list: () =>
+    fetch(`${API_BASE}/api/fabrics`, { headers: authHeaders() }).then(handleResponse),
+  create: (data) =>
+    fetch(`${API_BASE}/api/fabrics`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+};
+

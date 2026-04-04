@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { profilesApi, patternsApi } from "../api/client";
 import ConfirmModal from "./ConfirmModal";
 import IconButton from "./IconButton";
+import FabricLibrary from "./FabricLibrary";
 
 export default function Library({ user, selectedProfileId, setProfileId, onViewPattern }) {
+  const [activeTab, setActiveTab] = useState("patterns"); // "patterns" | "fabrics"
   const [profiles, setProfiles] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -180,11 +182,17 @@ export default function Library({ user, selectedProfileId, setProfileId, onViewP
         </div>
 
         <nav className="library-nav">
-          <button className="lib-nav-item active">
+          <button 
+            className={`lib-nav-item ${activeTab === "patterns" ? "active" : ""}`}
+            onClick={() => setActiveTab("patterns")}
+          >
             <span className="material-symbols-outlined">grid_view</span>
             Todos los patrones
           </button>
-          <button className="lib-nav-item">
+          <button 
+            className={`lib-nav-item ${activeTab === "fabrics" ? "active" : ""}`}
+            onClick={() => setActiveTab("fabrics")}
+          >
             <span className="material-symbols-outlined">texture</span>
             Biblioteca de telas
           </button>
@@ -313,79 +321,85 @@ export default function Library({ user, selectedProfileId, setProfileId, onViewP
             </div>
           </section>
 
-          {/* Grid de Patrones */}
-          <section className="library-section">
-            <div className="section-header-row">
-              <div>
-                <h2 className="library-h3">
-                  {selectedProfile ? `Proyectos Recientes: ${selectedProfile.profile_name}` : "Todos los Patrones"}
-                </h2>
-                <div className="h-underline"></div>
-              </div>
+          {activeTab === "patterns" ? (
+            <>
+              {/* Grid de Patrones */}
+              <section className="library-section">
+                <div className="section-header-row">
+                  <div>
+                    <h2 className="library-h3">
+                      {selectedProfile ? `Proyectos Recientes: ${selectedProfile.profile_name}` : "Todos los Patrones"}
+                    </h2>
+                    <div className="h-underline"></div>
+                  </div>
 
-              <div className="header-actions">
-                <div className="search-wrap">
-                  <span className="material-symbols-outlined search-icon">search</span>
-                  <input
-                    type="text"
-                    placeholder="Buscar patrones..."
-                    className="search-input"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <IconButton
-                  icon="filter_list"
-                  text="Filtro"
-                />
-              </div>
-            </div>
-
-            <div className="pattern-grid">
-              {filteredTemplates.map((t) => (
-                <div key={t.id} className="pattern-card group">
-                  <div className="pattern-card-preview">
-                    <div className="pattern-icon-placeholder">
-                      <span className="material-symbols-outlined">checkroom</span>
-                    </div>
-                    <div className="pattern-card-actions">
-                      <IconButton
-                        icon="visibility"
-                        onClick={() => onViewPattern && onViewPattern(t.id, selectedProfileId)}
-                        title="Ver en Workspace"
+                  <div className="header-actions">
+                    <div className="search-wrap">
+                      <span className="material-symbols-outlined search-icon">search</span>
+                      <input
+                        type="text"
+                        placeholder="Buscar patrones..."
+                        className="search-input"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                       />
-                      <IconButton icon="edit" title="Editar Patrón" />
-                      <IconButton icon="delete" title="Eliminar Patrón" />
                     </div>
-                  </div>
-                  <div className="pattern-card-info">
-                    <div className="pattern-card-title-row">
-                      <h4 className="pattern-card-title">{t.template_name}</h4>
-                      <span className="version-label">V1.0</span>
-                    </div>
-                    <p className="pattern-card-desc">{t.garment_category || "Molde Técnico"} • Industrial</p>
-                    <div className="pattern-card-stats">
-                      <div className="p-stat">
-                        <span className="material-symbols-outlined">straighten</span>
-                        <span>Talla M</span>
-                      </div>
-                      <div className="p-stat">
-                        <span className="material-symbols-outlined">layers</span>
-                        <span>5 Capas</span>
-                      </div>
-                    </div>
+                    <IconButton
+                      icon="filter_list"
+                      text="Filtro"
+                    />
                   </div>
                 </div>
-              ))}
 
-              {filteredTemplates.length === 0 && (
-                <div className="empty-state">
-                  <span className="material-symbols-outlined">search_off</span>
-                  <p>No se encontraron patrones con ese nombre.</p>
+                <div className="pattern-grid">
+                  {filteredTemplates.map((t) => (
+                    <div key={t.id} className="pattern-card group">
+                      <div className="pattern-card-preview">
+                        <div className="pattern-icon-placeholder">
+                          <span className="material-symbols-outlined">checkroom</span>
+                        </div>
+                        <div className="pattern-card-actions">
+                          <IconButton
+                            icon="visibility"
+                            onClick={() => onViewPattern && onViewPattern(t.id, selectedProfileId)}
+                            title="Ver en Workspace"
+                          />
+                          <IconButton icon="edit" title="Editar Patrón" />
+                          <IconButton icon="delete" title="Eliminar Patrón" />
+                        </div>
+                      </div>
+                      <div className="pattern-card-info">
+                        <div className="pattern-card-title-row">
+                          <h4 className="pattern-card-title">{t.template_name}</h4>
+                          <span className="version-label">V1.0</span>
+                        </div>
+                        <p className="pattern-card-desc">{t.garment_category || "Molde Técnico"} • Industrial</p>
+                        <div className="pattern-card-stats">
+                          <div className="p-stat">
+                            <span className="material-symbols-outlined">straighten</span>
+                            <span>Talla M</span>
+                          </div>
+                          <div className="p-stat">
+                            <span className="material-symbols-outlined">layers</span>
+                            <span>5 Capas</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {filteredTemplates.length === 0 && (
+                    <div className="empty-state">
+                      <span className="material-symbols-outlined">search_off</span>
+                      <p>No se encontraron patrones con ese nombre.</p>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </section>
+              </section>
+            </>
+          ) : (
+            <FabricLibrary user={user} />
+          )}
 
         </div>
       </main>
