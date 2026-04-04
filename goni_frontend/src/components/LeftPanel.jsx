@@ -43,6 +43,9 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
       }
       setProfiles(local);
       if (!selectedProfileId) setProfileId(local[0].id);
+
+      // Cargar telas publicas (Guests)
+      fabricsApi.listPublic().then(setFabrics).catch(() => { });
     } else {
       // API management for registered users
       profilesApi.list().then((p) => {

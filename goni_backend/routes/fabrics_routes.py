@@ -21,6 +21,13 @@ def list_fabrics(current_user: dict = Depends(get_current_user)):
         )
         return [dict(r) for r in cur.fetchall()]
 
+@router.get("/public")
+def list_public_fabrics():
+    with get_db() as conn:
+        cur = dict_cursor(conn)
+        cur.execute("SELECT * FROM fabrics WHERE user_id IS NULL ORDER BY name")
+        return [dict(r) for r in cur.fetchall()]
+
 @router.post("")
 def create_fabric(fabric: FabricCreate, current_user: dict = Depends(get_current_user)):
     with get_db() as conn:
@@ -28,8 +35,8 @@ def create_fabric(fabric: FabricCreate, current_user: dict = Depends(get_current
         cur.execute(
             """
             INSERT INTO fabrics 
-            (name, material, width_cm, weight_gsm, stretch_horizontal, stretch_vertical, shrinkage_warp, shrinkage_weft, inclination, user_id, color_hex, cost_per_meter)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            (name, material, width_cm, weight_gsm, stretch_horizontal, stretch_vertical, shrinkage_warp, shrinkage_weft, inclination, user_id, color_hex)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING *
             """,
             (

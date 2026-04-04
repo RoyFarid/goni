@@ -188,6 +188,8 @@ export const patternsApi = {
 export const fabricsApi = {
   list: () =>
     fetch(`${API_BASE}/api/fabrics`, { headers: authHeaders() }).then(handleResponse),
+  listPublic: () =>
+    fetch(`${API_BASE}/api/fabrics/public`).then(handleResponse),
   create: (data) =>
     fetch(`${API_BASE}/api/fabrics`, {
       method: "POST",

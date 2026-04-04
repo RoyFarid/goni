@@ -17,6 +17,10 @@ export default function FabricLibrary({ user }) {
   });
 
   const openForm = () => {
+    if (user?.tier === "guest") {
+      alert("Debes iniciar sesión con una cuenta para guardar telas en tu biblioteca privada.");
+      return;
+    }
     setFormData({
       name: "", material: "", width_cm: "", weight_gsm: "",
       stretch_horizontal: "", stretch_vertical: "",
@@ -61,12 +65,12 @@ export default function FabricLibrary({ user }) {
   const loadData = async () => {
     try {
       setLoading(true);
-      if (user.tier !== "guest") {
+      if (user?.tier !== "guest") {
         const data = await fabricsApi.list();
         setFabrics(data);
       } else {
-        // Guests might not see fabrics yet, or see an empty list
-        setFabrics([]);
+        const data = await fabricsApi.listPublic();
+        setFabrics(data);
       }
     } catch (err) {
       console.error("Error cargando telas:", err);
