@@ -65,6 +65,11 @@ function AppInner() {
     if (sessionAlert) setShowLogin(true);
   }, [sessionAlert]);
 
+  // When a real user logs in, remove guest mode
+  useEffect(() => {
+    if (user) setIsGuest(false);
+  }, [user]);
+
   // Jump from Library to Workspace with auto-compute
   const handleViewPattern = async (templateId, profileId) => {
     setActiveView("workspace");
@@ -136,9 +141,9 @@ function AppInner() {
                 title="Mi Cuenta"
               />
               <IconButton
-                icon={isGuest ? "login" : "logout"}
-                text={isGuest ? "Iniciar Sesión" : "Cerrar Sesión"}
-                onClick={isGuest ? () => setShowLogin(true) : logout}
+                icon={!user ? "login" : "logout"}
+                text={!user ? "Iniciar Sesión" : "Cerrar Sesión"}
+                onClick={!user ? () => setShowLogin(true) : logout}
               />
             </div>
           ) : (

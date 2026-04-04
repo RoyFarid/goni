@@ -42,7 +42,9 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
         localStorage.setItem("goni_guest_profiles", JSON.stringify(local));
       }
       setProfiles(local);
-      if (!selectedProfileId) setProfileId(local[0].id);
+      
+      const currentIsGuest = String(selectedProfileId || "").startsWith("guest-");
+      if (!selectedProfileId || !currentIsGuest) setProfileId(local[0].id);
 
       // Cargar telas publicas (Guests)
       fabricsApi.listPublic().then(setFabrics).catch(() => { });
@@ -50,13 +52,14 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
       // API management for registered users
       profilesApi.list().then((p) => {
         setProfiles(p);
-        if (p.length > 0 && !selectedProfileId) setProfileId(p[0].id);
+        const currentIsGuest = String(selectedProfileId || "").startsWith("guest-");
+        if (p.length > 0 && (!selectedProfileId || currentIsGuest)) setProfileId(p[0].id);
       }).catch(() => { });
 
       // Cargar telas del usuario
       fabricsApi.list().then(setFabrics).catch(() => { });
     }
-  }, [user]);
+  }, [user, selectedProfileId, setProfileId]);
 
   // When template changes, fetch required measurement keys
   useEffect(() => {
