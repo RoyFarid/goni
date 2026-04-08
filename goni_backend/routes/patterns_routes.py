@@ -62,8 +62,8 @@ def required_measurements(template_id: int):
             if name not in defined and not name[0].isupper():
                 referenced.add(name)
 
-    # Filter out Python builtins / math funcs we expose
-    SAFE_NAMES = {"sqrt", "ceil", "floor", "round", "abs", "min", "max", "pi"}
+    # Filter out Python builtins / math funcs we expose + global fashion variables
+    SAFE_NAMES = {"sqrt", "ceil", "floor", "round", "abs", "min", "max", "pi", "seam", "ease"}
     measurement_keys = sorted(referenced - SAFE_NAMES)
     return {"template_id": template_id, "measurement_keys": measurement_keys}
 
@@ -74,7 +74,7 @@ def _get_template_data(template_id: int):
         cur = dict_cursor(conn)
         
         # Template and logic
-        cur.execute("SELECT template_name FROM pattern_templates WHERE id = %s", (template_id,))
+        cur.execute("SELECT template_name, ease_slim_cm, ease_regular_cm, ease_loose_cm FROM pattern_templates WHERE id = %s", (template_id,))
         tpl = cur.fetchone()
         if not tpl: raise HTTPException(status_code=404, detail="Template not found")
         
@@ -84,7 +84,7 @@ def _get_template_data(template_id: int):
         cur.execute("SELECT path_name, node_sequence, is_curve, stroke_color FROM path_definitions WHERE template_id = %s", (template_id,))
         path_rows = [dict(r) for r in cur.fetchall()]
         
-    return tpl["template_name"], logic_rows, path_rows
+    return dict(tpl), logic_rows, path_rows
 
 def _run_computation(logic_rows, body_meas, path_rows, template_name):
     if not logic_rows:
@@ -108,7 +108,15 @@ def _run_computation(logic_rows, body_meas, path_rows, template_name):
         })
     return template_name, points, paths, technicals
 
-def _load_and_compute(template_id: int, profile_id: str, user_id: str, fabric_id: int = None):
+def _load_and_compute(
+    template_id: int, 
+    profile_id: str, 
+    user_id: str, 
+    fabric_id: int = None,
+    custom_seam: float = None,
+    custom_ease: float = None,
+    ease_type: str = "regular"
+):
     with get_db() as conn:
         cur = dict_cursor(conn)
         cur.execute("SELECT id FROM measurement_profiles WHERE id = %s AND user_id = %s", (profile_id, user_id))
@@ -117,6 +125,13 @@ def _load_and_compute(template_id: int, profile_id: str, user_id: str, fabric_id
         cur.execute("SELECT measurement_key, value_cm FROM body_measurements WHERE profile_id = %s AND template_id = %s", (profile_id, template_id))
         body_meas = {r["measurement_key"]: float(r["value_cm"]) for r in cur.fetchall()}
         
+        # 1. Fetch Template info (presets)
+        tpl, logic, paths = _get_template_data(template_id)
+
+        # 2. Fabric Logic & Defaults
+        resolved_seam = 1.0 # Standard fallback
+        resolved_ease_type = ease_type or "regular"
+
         # Inject fabric modifiers
         body_meas["fabric_stretch_h"] = 1.0
         body_meas["fabric_stretch_v"] = 1.0
@@ -124,7 +139,7 @@ def _load_and_compute(template_id: int, profile_id: str, user_id: str, fabric_id
         body_meas["fabric_shrinkage_weft"] = 1.0
         
         if fabric_id:
-            cur.execute("SELECT stretch_horizontal, stretch_vertical, shrinkage_warp, shrinkage_weft FROM fabrics WHERE id = %s AND (user_id IS NULL OR user_id = %s)", (fabric_id, user_id))
+            cur.execute("SELECT stretch_horizontal, stretch_vertical, shrinkage_warp, shrinkage_weft, default_seam_cm FROM fabrics WHERE id = %s AND (user_id IS NULL OR user_id = %s)", (fabric_id, user_id))
             fab = cur.fetchone()
             if fab:
                 # Elongation reduces pattern size (1 - X%)
@@ -133,9 +148,35 @@ def _load_and_compute(template_id: int, profile_id: str, user_id: str, fabric_id
                 # Shrinkage increases pattern size (1 + X%)
                 body_meas["fabric_shrinkage_warp"] = 1.0 + (float(fab["shrinkage_warp"] or 0) / 100.0)
                 body_meas["fabric_shrinkage_weft"] = 1.0 + (float(fab["shrinkage_weft"] or 0) / 100.0)
-                
-    name, logic, paths = _get_template_data(template_id)
-    return _run_computation(logic, body_meas, paths, name)
+                resolved_seam = float(fab["default_seam_cm"] or 1.0)
+
+            # Check for Expert Rules (fabric_pattern_config)
+            cur.execute("SELECT suggested_seam, suggested_ease_type FROM fabric_pattern_config WHERE fabric_id = %s AND template_id = %s", (fabric_id, template_id))
+            config = cur.fetchone()
+            if config:
+                if config["suggested_seam"] is not None:
+                    resolved_seam = float(config["suggested_seam"])
+                if not ease_type and config["suggested_ease_type"]:
+                    resolved_ease_type = config["suggested_ease_type"]
+
+        # 3. Final overrides (from parameters)
+        # Costura
+        if custom_seam is not None:
+            resolved_seam = custom_seam
+        
+        # Holgura
+        if custom_ease is not None:
+            resolved_ease = custom_ease
+        else:
+            # Look up preset in template
+            preset_key = f"ease_{resolved_ease_type}_cm"
+            resolved_ease = float(tpl.get(preset_key, 2.0))
+
+        # Inject into formula context
+        body_meas["seam"] = resolved_seam
+        body_meas["ease"] = resolved_ease
+
+    return _run_computation(logic, body_meas, paths, tpl["template_name"])
 
 
 @router.get("/patterns/{template_id}/compute/{profile_id}", response_model=PatternResponse)
@@ -144,10 +185,14 @@ def compute_pattern(
     profile_id: str,
     request: Request,
     fabric_id: int = None,
+    custom_seam: float = None,
+    custom_ease: float = None,
+    ease_type: str = "regular",
     current_user: dict = Depends(get_current_user),
 ):
     template_name, points, paths, technicals = _load_and_compute(
-        template_id, profile_id, current_user["id"], fabric_id
+        template_id, profile_id, current_user["id"], 
+        fabric_id, custom_seam, custom_ease, ease_type
     )
     
     # Registro de uso (Registrado - compute)
@@ -172,6 +217,9 @@ def export_dxf(
     template_id: int, 
     profile_id: str, 
     fabric_id: int = None,
+    custom_seam: float = None,
+    custom_ease: float = None,
+    ease_type: str = "regular",
     user: dict = Depends(get_current_user),
     request: Request = None
 ):
@@ -184,7 +232,10 @@ def export_dxf(
     if count >= limit:
         raise HTTPException(status_code=403, detail=f"Has alcanzado tu límite de {limit} descargas mensuales.")
     
-    name, points, paths, _ = _load_and_compute(template_id, profile_id, user["id"], fabric_id)
+    name, points, paths, _ = _load_and_compute(
+        template_id, profile_id, user["id"], 
+        fabric_id, custom_seam, custom_ease, ease_type
+    )
     
     # Registro de uso (Registrado - export_dxf)
     log_usage(
@@ -207,10 +258,19 @@ def export_dxf(
 
 @router.post("/patterns/{template_id}/compute-guest", response_model=PatternResponse)
 def compute_guest(template_id: int, data: GuestComputeRequest, request: Request):
-    name, logic, paths = _get_template_data(template_id)
+    tpl, logic, paths = _get_template_data(template_id)
     body_meas = {m.measurement_key: m.value_cm for m in data.measurements}
     
-    res_name, points, res_paths, technicals = _run_computation(logic, body_meas, paths, name)
+    # Resolve holgura/costura for guest (simplified)
+    body_meas["seam"] = data.custom_seam if data.custom_seam is not None else 1.0
+    
+    if data.custom_ease is not None:
+        body_meas["ease"] = data.custom_ease
+    else:
+        preset_key = f"ease_{data.ease_type or 'regular'}_cm"
+        body_meas["ease"] = float(tpl.get(preset_key, 2.0))
+    
+    res_name, points, res_paths, technicals = _run_computation(logic, body_meas, paths, tpl["template_name"])
     
     # Log (Unlimited compute)
     log_usage(action_type="compute", guest_id=data.guest_id, template_id=template_id, user_agent=request.headers.get("user-agent"))

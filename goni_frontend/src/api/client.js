@@ -134,16 +134,21 @@ export const patternsApi = {
       headers: authHeaders(),
     }).then(handleResponse),
 
-  compute: (templateId, profileId, fabricId = "") => {
-    let url = `${API_BASE}/api/patterns/${templateId}/compute/${profileId}`;
-    if (fabricId) url += `?fabric_id=${fabricId}`;
+  compute: (templateId, profileId, fabricId = "", customSeam = null, customEase = null, easeType = "regular") => {
+    let url = `${API_BASE}/api/patterns/${templateId}/compute/${profileId}?ease_type=${easeType}`;
+    if (fabricId) url += `&fabric_id=${fabricId}`;
+    if (customSeam !== null && customSeam !== "") url += `&custom_seam=${customSeam}`;
+    if (customEase !== null && customEase !== "") url += `&custom_ease=${customEase}`;
+    
     return fetch(url, { headers: authHeaders() }).then(handleResponse);
   },
 
-  downloadDxf: async (templateId, profileId, templateName, fabricId = "") => {
+  downloadDxf: async (templateId, profileId, templateName, fabricId = "", customSeam = null, customEase = null, easeType = "regular") => {
     const token = getToken();
-    let endpoint = `${API_BASE}/api/patterns/${templateId}/compute/${profileId}/dxf`;
-    if (fabricId) endpoint += `?fabric_id=${fabricId}`;
+    let endpoint = `${API_BASE}/api/patterns/${templateId}/compute/${profileId}/dxf?ease_type=${easeType}`;
+    if (fabricId) endpoint += `&fabric_id=${fabricId}`;
+    if (customSeam !== null && customSeam !== "") endpoint += `&custom_seam=${customSeam}`;
+    if (customEase !== null && customEase !== "") endpoint += `&custom_ease=${customEase}`;
     
     const res = await fetch(endpoint, { headers: { Authorization: `Bearer ${token}` } });
     if (!res.ok) throw new Error("Error generando DXF");
@@ -157,11 +162,18 @@ export const patternsApi = {
   },
 
   // ── Guest methods ───────────────────────────────────────────────────────────
-  computeGuest: (templateId, measurements) =>
+  computeGuest: (templateId, measurements, fabricId = null, customSeam = null, customEase = null, easeType = "regular") =>
     fetch(`${API_BASE}/api/patterns/${templateId}/compute-guest`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ guest_id: getGuestId(), measurements }),
+      body: JSON.stringify({ 
+        guest_id: getGuestId(), 
+        measurements,
+        fabric_id: fabricId,
+        custom_seam: customSeam,
+        custom_ease: customEase,
+        ease_type: easeType
+      }),
     }).then(handleResponse),
 
   downloadDxfGuest: async (templateId, measurements, templateName) => {

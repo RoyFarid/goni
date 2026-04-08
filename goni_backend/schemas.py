@@ -81,6 +81,10 @@ class PatternResponse(BaseModel):
 class GuestComputeRequest(BaseModel):
     guest_id: str
     measurements: list[BodyMeasurementItem]
+    fabric_id: Optional[int] = None
+    custom_seam: Optional[float] = None
+    custom_ease: Optional[float] = None
+    ease_type: Optional[str] = "regular"
 
 
 # ─── Fabrics ──────────────────────────────────────────────────────────────────
@@ -95,4 +99,4 @@ class FabricCreate(BaseModel):
     shrinkage_weft: Optional[float] = None
     inclination: Optional[str] = None
     color_hex: Optional[str] = None
-    cost_per_meter: Optional[float] = None
+    default_seam_cm: Optional[float] = 1.0

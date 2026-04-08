@@ -22,6 +22,12 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
     return localStorage.getItem("goni_selected_fabric") || "";
   });
 
+  // Fashion Adjustments State
+  const [easeType, setEaseType] = useState("regular"); // 'slim', 'regular', 'loose'
+  const [customEase, setCustomEase] = useState(""); 
+  const [customSeam, setCustomSeam] = useState("");
+
+
   useEffect(() => {
     if (selectedFabricId) localStorage.setItem("goni_selected_fabric", selectedFabricId);
   }, [selectedFabricId]);
@@ -118,14 +124,29 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
           setProfiles([...local]);
         }
         // 2. Compute via guest endpoint
-        pattern = await patternsApi.computeGuest(templateId, items);
+        pattern = await patternsApi.computeGuest(
+          templateId, 
+          items, 
+          selectedFabricId, 
+          customSeam, 
+          customEase, 
+          easeType
+        );
       } else {
         // Regular flow
         await profilesApi.saveMeasurements(selectedProfileId, templateId, items);
-        pattern = await patternsApi.compute(templateId, selectedProfileId, selectedFabricId);
+        pattern = await patternsApi.compute(
+          templateId, 
+          selectedProfileId, 
+          selectedFabricId,
+          customSeam,
+          customEase,
+          easeType
+        );
       }
 
-      onCompute(pattern, selectedProfileId, selectedFabricId);
+      onCompute(pattern, selectedProfileId, selectedFabricId, { customSeam, customEase, easeType });
+
       setStatus({ type: "ok", msg: "Molde generado ✓" });
     } catch (err) {
       setStatus({ type: "err", msg: err.message });
@@ -148,8 +169,11 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
   };
 
   return (
-    <aside className="left-panel">
-      <div className="panel-section" style={{ paddingBottom: 0 }}>
+    <aside className="left-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+      <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+
+        <div className="panel-section" style={{ paddingBottom: 10 }}>
+
         <div className="section-label">Perfil de Medidas</div>
 
         {/* Profile selector */}
@@ -232,10 +256,78 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
             </div>
           );
         })()}
+
+        <div className="section-label" style={{ marginTop: '16px' }}>Ajustes de Confección</div>
+
+        
+        {/* Fit Selector (Ease Type) */}
+        <div style={{ marginBottom: "12px" }}>
+          <div style={{ fontSize: "10px", fontWeight: "700", color: "var(--outline)", textTransform: "uppercase", marginBottom: "6px" }}>
+            Tipo de Holgura (Fit)
+          </div>
+          <div style={{ display: "flex", background: "var(--surface-container-low)", padding: "2px", borderRadius: "8px", gap: "2px" }}>
+            {['slim', 'regular', 'loose'].map((type) => (
+              <button
+                key={type}
+                onClick={() => { setEaseType(type); setCustomEase(""); }}
+                style={{
+                  flex: 1,
+                  padding: "6px 8px",
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  borderRadius: "6px",
+                  border: "none",
+                  cursor: "pointer",
+                  backgroundColor: easeType === type && !customEase ? "var(--primary)" : "transparent",
+                  color: easeType === type && !customEase ? "white" : "var(--on-surface-variant)",
+                  transition: "all 0.2s"
+                }}
+              >
+                {type === 'slim' ? 'Entallado' : type === 'regular' ? 'Normal' : 'Holgado'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Manual Overrides */}
+        <div style={{ display: "flex", gap: "8px" }}>
+          <div className="field-group" style={{ flex: 1, marginBottom: 0 }}>
+            <label style={{ fontSize: "10px", fontWeight: "700", color: "var(--outline)", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
+              Holgura (cm)
+            </label>
+            <div className="meas-input-wrap" style={{ height: "32px" }}>
+              <input
+                type="number"
+                step="0.1"
+                placeholder="Auto"
+                value={customEase}
+                onChange={(e) => setCustomEase(e.target.value)}
+                style={{ fontSize: "12px" }}
+              />
+              <span className="meas-unit" style={{ fontSize: "10px" }}>cm</span>
+            </div>
+          </div>
+          <div className="field-group" style={{ flex: 1, marginBottom: 0 }}>
+            <label style={{ fontSize: "10px", fontWeight: "700", color: "var(--outline)", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
+              Costura (cm)
+            </label>
+            <div className="meas-input-wrap" style={{ height: "32px" }}>
+              <input
+                type="number"
+                step="0.1"
+                placeholder="1.0"
+                value={customSeam}
+                onChange={(e) => setCustomSeam(e.target.value)}
+                style={{ fontSize: "12px" }}
+              />
+              <span className="meas-unit" style={{ fontSize: "10px" }}>cm</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Body measurements */}
-      <div className="panel-section flex-1 overflow-y-auto" style={{ paddingTop: '10px' }}>
+      <div className="panel-section" style={{ paddingTop: '10px', borderTop: '1px solid var(--outline-variant)' }}>
         <div className="section-label">
           <span>Medidas Corporales</span>
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>straighten</span>
@@ -266,21 +358,22 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
           ))}
         </div>
       </div>
+    </div>
 
-      {/* Action */}
-      <div className="panel-section">
-        {status && (
-          <div className={`status-msg ${status.type}`}>{status.msg}</div>
-        )}
-        <button
-          className="btn-primary w-full"
-          onClick={handleSaveAndCompute}
-          disabled={loading || !selectedProfileId}
-        >
-          <span className="material-symbols-outlined">auto_awesome</span>
-          {loading ? "Generando…" : "Generar Molde"}
-        </button>
-      </div>
-    </aside>
-  );
+    {/* Action */}
+    <div className="panel-section">
+      {status && (
+        <div className={`status-msg ${status.type}`}>{status.msg}</div>
+      )}
+      <button
+        className="btn-primary w-full"
+        onClick={handleSaveAndCompute}
+        disabled={loading || !selectedProfileId}
+      >
+        <span className="material-symbols-outlined">auto_awesome</span>
+        {loading ? "Generando…" : "Generar Molde"}
+      </button>
+    </div>
+  </aside>
+);
 }
