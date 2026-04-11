@@ -1882,9 +1882,13 @@ body {
     padding: 0 14px;
   }
 
-  /* ── Mobile Bottom Bar ── */
+  /* ── Mobile Bottom Bar: ALWAYS fixed to bottom ── */
   .mobile-bottom-bar {
     display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     align-items: stretch;
     justify-content: space-around;
     height: var(--mobile-bar-h);
@@ -1896,6 +1900,16 @@ body {
     flex-shrink: 0;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    /* Safe area for iOS home bar */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Push main content up so it's not hidden under the fixed bar */
+  .main-layout {
+    height: calc(100vh - var(--topnav-h) - var(--mobile-bar-h));
+    overflow: hidden;
+    position: relative;
+    /* Remove padding-bottom — fixed bar floats above */
   }
 
   .mobile-tab-btn {
@@ -2193,3 +2207,121 @@ body {
     display: contents; /* transparent wrapper on desktop */
   }
 }
+
+/* ─── User dropdown ─────────────────────────────────────── */
+.user-name-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 8px;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-full);
+  background: var(--surface-container);
+  color: var(--on-surface);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+  max-width: 180px;
+}
+.user-name-btn:hover {
+  background: var(--surface-high);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.08);
+}
+.user-name-btn-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 110px;
+}
+.user-name-chevron {
+  color: var(--outline);
+  flex-shrink: 0;
+}
+
+/* Invisible backdrop */
+.user-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 299;
+}
+
+/* The dropdown card */
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  background: var(--surface-white);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 300;
+  overflow: hidden;
+  animation: dropdownIn 0.18s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+.user-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+.user-dropdown-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-container));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.user-dropdown-avatar .material-symbols-outlined { font-size: 20px; }
+.user-dropdown-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+.user-dropdown-email {
+  font-size: 11px;
+  color: var(--secondary);
+  margin-top: 1px;
+}
+.user-dropdown-divider {
+  height: 1px;
+  background: var(--outline-variant);
+  margin: 0;
+}
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+.user-dropdown-item:hover {
+  background: var(--surface-container);
+  color: var(--on-surface);
+}
+.user-dropdown-item .material-symbols-outlined { font-size: 18px; }
+.user-dropdown-item--danger { color: var(--error); }
+.user-dropdown-item--danger:hover { background: var(--error-bg); color: var(--error); }

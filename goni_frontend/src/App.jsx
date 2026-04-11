@@ -17,6 +17,7 @@ function AppInner() {
   const [activeView, setActiveView] = useState("workspace"); // "workspace" | "library"
   // Mobile drawer state: which panel is open on small screens
   const [activeMobilePanel, setActiveMobilePanel] = useState(null); // "datos" | "exportar" | "biblioteca" | null
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState(() => {
@@ -137,17 +138,64 @@ function AppInner() {
           )}
 
           {activeUser ? (
-            <div className="user-menu">
-              <IconButton
-                icon="person"
-                text={activeUser.full_name || activeUser.email}
-                title="Mi Cuenta"
-              />
-              <IconButton
-                icon={!user ? "login" : "logout"}
-                text={!user ? "Iniciar Sesión" : "Cerrar Sesión"}
-                onClick={!user ? () => setShowLogin(true) : logout}
-              />
+            <div className="user-menu" style={{ position: "relative" }}>
+              {/* User name button – toggles dropdown */}
+              <button
+                id="user-menu-trigger"
+                className="user-name-btn"
+                onClick={() => setShowUserMenu((v) => !v)}
+                aria-haspopup="true"
+                aria-expanded={showUserMenu}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>person</span>
+                <span className="user-name-btn-text">{activeUser.full_name || activeUser.email || "Invitado"}</span>
+                <span className="material-symbols-outlined user-name-chevron" style={{ fontSize: 16 }}>
+                  {showUserMenu ? "expand_less" : "expand_more"}
+                </span>
+              </button>
+
+              {/* Dropdown */}
+              {showUserMenu && (
+                <>
+                  {/* Invisible backdrop to close on outside click */}
+                  <div
+                    className="user-menu-backdrop"
+                    onClick={() => setShowUserMenu(false)}
+                  />
+                  <div className="user-dropdown" role="menu">
+                    <div className="user-dropdown-header">
+                      <div className="user-dropdown-avatar">
+                        <span className="material-symbols-outlined">person</span>
+                      </div>
+                      <div>
+                        <div className="user-dropdown-name">{activeUser.full_name || "Invitado"}</div>
+                        {activeUser.email && <div className="user-dropdown-email">{activeUser.email}</div>}
+                      </div>
+                    </div>
+                    <div className="user-dropdown-divider" />
+                    {/* Future items go here */}
+                    {!user ? (
+                      <button
+                        className="user-dropdown-item"
+                        role="menuitem"
+                        onClick={() => { setShowUserMenu(false); setShowLogin(true); }}
+                      >
+                        <span className="material-symbols-outlined">login</span>
+                        Iniciar Sesión
+                      </button>
+                    ) : (
+                      <button
+                        className="user-dropdown-item user-dropdown-item--danger"
+                        role="menuitem"
+                        onClick={() => { setShowUserMenu(false); logout(); }}
+                      >
+                        <span className="material-symbols-outlined">logout</span>
+                        Cerrar Sesión
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           ) : (
             <button className="btn-secondary" onClick={() => setShowLogin(true)}>
