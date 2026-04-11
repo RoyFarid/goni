@@ -7,6 +7,7 @@ import RightPanel from "./components/RightPanel";
 import Library from "./components/Library";
 import LoginPage from "./components/LoginPage";
 import IconButton from "./components/IconButton";
+import MobileBottomBar from "./components/MobileBottomBar";
 import "./index.css";
 
 // ─── Inner app (needs auth context) ──────────────────────────────────────────
@@ -14,6 +15,8 @@ function AppInner() {
   const { user, logout, sessionAlert, clearAlert } = useAuth();
 
   const [activeView, setActiveView] = useState("workspace"); // "workspace" | "library"
+  // Mobile drawer state: which panel is open on small screens
+  const [activeMobilePanel, setActiveMobilePanel] = useState(null); // "datos" | "exportar" | "biblioteca" | null
   const [showLogin, setShowLogin] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState(() => {
@@ -159,25 +162,31 @@ function AppInner() {
         {activeUser ? (
           activeView === "workspace" ? (
             <>
-              <LeftPanel
-                user={activeUser}
-                templates={templates}
-                templateId={selectedTemplateId}
-                onTemplateChange={(newId) => {
-                  setSelectedTemplateId(newId);
-                  setPattern(null);
-                }}
-                selectedProfileId={selectedProfileId}
-                setProfileId={setSelectedProfileId}
-                onCompute={(data) => setPattern(data)}
-              />
-              <PatternCanvas pattern={pattern} />
-              <RightPanel
-                pattern={pattern}
-                templateId={selectedTemplateId}
-                profileId={selectedProfileId}
-                user={activeUser}
-              />
+              {/* Desktop: always visible. Mobile: hidden by default */}
+              <div className={`desktop-panel left-panel-wrapper ${activeMobilePanel === "datos" ? "mobile-panel-open" : ""}`}>
+                <LeftPanel
+                  user={activeUser}
+                  templates={templates}
+                  templateId={selectedTemplateId}
+                  onTemplateChange={(newId) => {
+                    setSelectedTemplateId(newId);
+                    setPattern(null);
+                  }}
+                  selectedProfileId={selectedProfileId}
+                  setProfileId={setSelectedProfileId}
+                  onCompute={(data) => setPattern(data)}
+                />
+              </div>
+              <PatternCanvas pattern={pattern} mobileZoomOut={activeMobilePanel !== null} />
+              {/* Desktop: always visible. Mobile: hidden by default */}
+              <div className={`desktop-panel right-panel-wrapper ${activeMobilePanel === "exportar" ? "mobile-panel-open" : ""}`}>
+                <RightPanel
+                  pattern={pattern}
+                  templateId={selectedTemplateId}
+                  profileId={selectedProfileId}
+                  user={activeUser}
+                />
+              </div>
             </>
           ) : (
             <Library
@@ -185,6 +194,7 @@ function AppInner() {
               selectedProfileId={selectedProfileId}
               setProfileId={setSelectedProfileId}
               onViewPattern={(tId, pId) => handleViewPattern(tId, pId)}
+              mobileLibraryOpen={activeMobilePanel === "biblioteca"}
             />
           )
         ) : (
@@ -211,6 +221,25 @@ function AppInner() {
           </div>
         )}
       </main>
+
+      {/* ── Mobile Bottom Navigation Bar ──────────────────────────────────── */}
+      {activeUser && (
+        <MobileBottomBar
+          activePanel={activeMobilePanel}
+          onToggle={(panel) =>
+            setActiveMobilePanel((prev) => (prev === panel ? null : panel))
+          }
+          activeView={activeView}
+          onLibrary={() => {
+            // If biblioteca is already active → toggle back to workspace
+            if (activeMobilePanel === "biblioteca") {
+              setActiveView("workspace");
+            } else {
+              setActiveView("library");
+            }
+          }}
+        />
+      )}
 
       {/* ── Status bar ────────────────────────────────────────────────────── */}
       <footer className="statusbar">

@@ -1841,3 +1841,355 @@ body {
   border-top: 1px dashed var(--surface-high);
 }
 
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE – Mobile & Small Tablet  (≤ 768px)
+   ══════════════════════════════════════════════════════════ */
+
+/* ─── Mobile Bottom Navigation Bar ─────────────────────── */
+.mobile-bottom-bar {
+  display: none; /* hidden on desktop */
+}
+
+@media (max-width: 768px) {
+  /* Reserve space at bottom for the bar */
+  :root {
+    --mobile-bar-h: 64px;
+  }
+
+  /* ── App shell shrinks main area ── */
+  .app-shell {
+    padding-bottom: 0;
+  }
+
+  /* Hide the status bar on mobile to save space */
+  .statusbar {
+    display: none;
+  }
+
+  /* ── Main layout takes full height minus topnav + mobile bar ── */
+  .main-layout {
+    height: calc(100vh - var(--topnav-h) - var(--mobile-bar-h));
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Topnav: hide desktop nav links, shrink brand ── */
+  .topnav-links {
+    display: none;
+  }
+  .topnav {
+    padding: 0 14px;
+  }
+
+  /* ── Mobile Bottom Bar ── */
+  .mobile-bottom-bar {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-around;
+    height: var(--mobile-bar-h);
+    min-height: var(--mobile-bar-h);
+    background: var(--surface-white);
+    border-top: 1px solid var(--outline-variant);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.07);
+    z-index: 200;
+    flex-shrink: 0;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .mobile-tab-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: none;
+    background: transparent;
+    color: var(--outline);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+    padding: 8px 0;
+    border-top: 2px solid transparent;
+    position: relative;
+  }
+  .mobile-tab-btn:hover {
+    color: var(--primary);
+    background: rgba(0, 123, 255, 0.04);
+  }
+  .mobile-tab-btn.active {
+    color: var(--primary);
+    border-top-color: var(--primary);
+  }
+
+  .mobile-tab-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mobile-tab-icon .material-symbols-outlined {
+    font-size: 22px;
+    transition: transform 0.2s;
+  }
+  .mobile-tab-btn.active .mobile-tab-icon .material-symbols-outlined {
+    transform: scale(1.1);
+  }
+  .mobile-tab-dot {
+    position: absolute;
+    top: -2px;
+    right: -4px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 0 2px white;
+  }
+  .mobile-tab-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Desktop panels: hide by default on mobile ── */
+  .desktop-panel {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--mobile-bar-h);
+    z-index: 150;
+    background: var(--surface-white);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.18);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    max-height: 55vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .desktop-panel.left-panel-wrapper {
+    /* Datos panel comes from left concept but overlays from bottom */
+  }
+
+  .desktop-panel.right-panel-wrapper {
+    /* Exportar panel */
+  }
+
+  /* Show panel when toggled */
+  .desktop-panel.mobile-panel-open {
+    display: block;
+  }
+
+  /* Panel drag handle indicator */
+  .desktop-panel.mobile-panel-open::before {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: var(--outline-variant);
+    border-radius: 2px;
+    margin: 10px auto 0;
+  }
+
+  /* Slide-up animation */
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Ensure inner panel fills the wrapper correctly */
+  .desktop-panel .left-panel,
+  .desktop-panel .right-panel {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 55vh;
+    overflow-y: auto;
+    border: none !important;
+    background: transparent;
+  }
+
+  /* ── Canvas: scale down to fit small screen ── */
+  .canvas-section {
+    flex: 1;
+    width: 100%;
+    overflow: hidden;
+  }
+  .canvas-area {
+    /* On mobile, canvas should show at a natural fit-to-screen zoom */
+    touch-action: none; /* Enable manual pinch-zoom handling */
+  }
+
+  /* Canvas toolbar: compact on mobile */
+  .canvas-toolbar {
+    top: 8px;
+    padding: 6px 10px;
+    gap: 2px;
+  }
+  .tool-btn {
+    width: 30px;
+    height: 30px;
+  }
+  .tool-btn .material-symbols-outlined {
+    font-size: 16px;
+  }
+  .zoom-indicator {
+    font-size: 10px;
+  }
+
+  /* Live specs card: hide on mobile to save space */
+  .live-specs-card {
+    display: none !important;
+  }
+
+  /* ── Library: full-page on mobile (no sidebar) ── */
+  .library-container {
+    flex-direction: column;
+    height: calc(100vh - var(--topnav-h) - var(--mobile-bar-h));
+  }
+
+  /* Hide desktop sidebar on mobile */
+  .library-sidebar {
+    display: none;
+  }
+
+  /* Show mobile tab bar */
+  .mobile-library-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--surface-white);
+    border-bottom: 1px solid var(--outline-variant);
+    padding: 0 16px;
+    flex-shrink: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .mobile-library-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-lib-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 16px;
+    border: none;
+    background: transparent;
+    color: var(--secondary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .mobile-lib-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  .mobile-lib-tab .material-symbols-outlined {
+    font-size: 18px;
+  }
+
+  /* Library main content on mobile: full width, scroll */
+  .library-main {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .library-content {
+    padding: 20px 16px;
+  }
+
+  /* Pattern grid: single column on mobile */
+  .pattern-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Profiles: scrollable horizontal list */
+  .profiles-horizontal-list {
+    padding: 12px;
+    margin: -12px;
+    gap: 14px;
+  }
+  .profile-card {
+    flex: 0 0 130px;
+  }
+
+  /* Search wraps */
+  .search-wrap {
+    width: 180px;
+  }
+
+  /* Section header: stack on mobile */
+  .section-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .header-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Not logged card: smaller padding */
+  .not-logged-card {
+    padding: 32px 20px;
+    margin: 16px;
+  }
+  .brand-huge {
+    font-size: 36px;
+  }
+  .not-logged-card h1 {
+    font-size: 22px;
+  }
+  .not-logged-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  /* Backdrop overlay when a panel is open */
+  .desktop-panel.mobile-panel-open + .canvas-section::before,
+  .main-layout:has(.mobile-panel-open) .canvas-section::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(2px);
+    z-index: 140;
+    pointer-events: none;
+    animation: fadeIn 0.2s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+/* ── Desktop: hide mobile-only elements ── */
+@media (min-width: 769px) {
+  .mobile-bottom-bar {
+    display: none !important;
+  }
+  .mobile-library-tabs {
+    display: none !important;
+  }
+  .desktop-panel {
+    display: contents; /* transparent wrapper on desktop */
+  }
+}

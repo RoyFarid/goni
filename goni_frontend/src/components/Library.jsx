@@ -4,7 +4,7 @@ import ConfirmModal from "./ConfirmModal";
 import IconButton from "./IconButton";
 import FabricLibrary from "./FabricLibrary";
 
-export default function Library({ user, selectedProfileId, setProfileId, onViewPattern }) {
+export default function Library({ user, selectedProfileId, setProfileId, onViewPattern, mobileLibraryOpen }) {
   const [activeTab, setActiveTab] = useState("patterns"); // "patterns" | "fabrics"
   const [profiles, setProfiles] = useState([]);
   const [templates, setTemplates] = useState([]);
@@ -168,8 +168,27 @@ export default function Library({ user, selectedProfileId, setProfileId, onViewP
   const selectedProfile = profiles.find(p => p.id == selectedProfileId);
 
   return (
-    <div className="library-container">
-      {/* Sidebar de la Biblioteca */}
+    <div className={`library-container ${mobileLibraryOpen ? "mobile-library-open" : ""}`}>
+
+      {/* Mobile-only: top tab selector (replaces left sidebar nav on small screens) */}
+      <div className="mobile-library-tabs">
+        <button
+          className={`mobile-lib-tab ${activeTab === "patterns" ? "active" : ""}`}
+          onClick={() => setActiveTab("patterns")}
+        >
+          <span className="material-symbols-outlined">grid_view</span>
+          Todos los patrones
+        </button>
+        <button
+          className={`mobile-lib-tab ${activeTab === "fabrics" ? "active" : ""}`}
+          onClick={() => setActiveTab("fabrics")}
+        >
+          <span className="material-symbols-outlined">texture</span>
+          Biblioteca de telas
+        </button>
+      </div>
+
+      {/* Sidebar de la Biblioteca (desktop only via CSS) */}
       <aside className="library-sidebar">
         <div className="sidebar-header">
           <div className="sidebar-icon-box">

@@ -6,7 +6,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
  * Props:
  *   pattern – PatternResponse from API { points, paths, technicals, template_name }
  */
-export default function PatternCanvas({ pattern }) {
+export default function PatternCanvas({ pattern, mobileZoomOut }) {
   const SCALE = 10; // 1 cm = 10 SVG units
   const PADDING = 40;
 
