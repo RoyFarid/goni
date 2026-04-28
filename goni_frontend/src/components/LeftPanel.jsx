@@ -127,9 +127,9 @@ export default function LeftPanel({ user, templates, templateId, onTemplateChang
         pattern = await patternsApi.computeGuest(
           templateId, 
           items, 
-          selectedFabricId, 
-          customSeam, 
-          customEase, 
+          selectedFabricId ? Number(selectedFabricId) : null, 
+          customSeam !== "" ? parseFloat(customSeam) : null,
+          customEase !== "" ? parseFloat(customEase) : null,
           easeType
         );
       } else {

@@ -148,13 +148,13 @@ function AppInner() {
         </div>
 
         <div className="topnav-right">
-          {user && (
+          {activeUser && (
             <span className="tier-badge">
-              {user.tier?.toUpperCase() || "GUEST"}
+              {activeUser.tier?.toUpperCase() || "GUEST"}
             </span>
           )}
 
-          {user && (
+          {activeUser && (
             <IconButton
               icon="workspace_premium"
               text="Mejorar Plan"

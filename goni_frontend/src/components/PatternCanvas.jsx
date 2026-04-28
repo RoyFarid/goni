@@ -1,10 +1,11 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 
 /**
  * PatternCanvas – renders SVG from computed pattern data.
  *
  * Props:
- *   pattern – PatternResponse from API { points, paths, technicals, template_name }
+ *   pattern      – PatternResponse from API { points, paths, technicals, template_name }
+ *   mobileZoomOut – boolean hint to zoom out when a panel is open
  */
 export default function PatternCanvas({ pattern, mobileZoomOut }) {
   const SCALE = 10; // 1 cm = 10 SVG units
@@ -18,8 +19,21 @@ export default function PatternCanvas({ pattern, mobileZoomOut }) {
   const [measurePts, setMeasurePts] = useState([]); // up to 2 {name,x,y}
   const svgRef = useRef(null);
 
+  // Touch gesture state kept in a ref to avoid stale closure issues in event handlers
+  const touchState = useRef({
+    lastDist: null,    // last pinch distance (null when no pinch)
+    lastMid: null,     // last pinch midpoint
+    lastPan: null,     // pan snapshot at pinch start
+    lastZoom: null,    // zoom snapshot at pinch start
+    singleStart: null, // {x, y} offset for single-finger drag
+  });
+
   // Reset pan/zoom when pattern changes
-  useEffect(() => { setZoom(1); setPan({ x: 0, y: 0 }); setMeasurePts([]); }, [pattern]);
+  useEffect(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+    setMeasurePts([]);
+  }, [pattern]);
 
   if (!pattern) {
     return (
@@ -51,7 +65,7 @@ export default function PatternCanvas({ pattern, mobileZoomOut }) {
   const vbW = maxX - minX;
   const vbH = maxY - minY;
 
-  // ── Catmull-Rom ────────────────────────────────────────────────────────────
+  // ── Catmull-Rom curve helper ───────────────────────────────────────────────
   const catmullRomPath = (ptList) => {
     if (ptList.length < 2) return "";
     if (ptList.length === 2) {
@@ -74,20 +88,18 @@ export default function PatternCanvas({ pattern, mobileZoomOut }) {
   };
 
   const buildPath = (path) => {
-    const ptList = path.node_sequence
-      .map((n) => ptMap[n])
-      .filter(Boolean);
+    const ptList = path.node_sequence.map((n) => ptMap[n]).filter(Boolean);
     if (ptList.length < 2) return null;
     if (path.is_curve) return catmullRomPath(ptList);
     return `M ${ptList.map((p) => `${p.x},${p.y}`).join(" L ")}`;
   };
 
-  // ── Zoom controls ──────────────────────────────────────────────────────────
-  const zoomIn = () => setZoom((z) => Math.min(z + 0.25, 5));
-  const zoomOut = () => setZoom((z) => Math.max(z - 0.25, 0.25));
+  // ── Zoom button controls ───────────────────────────────────────────────────
+  const zoomIn    = () => setZoom((z) => Math.min(z + 0.25, 5));
+  const zoomOut   = () => setZoom((z) => Math.max(z - 0.25, 0.25));
   const zoomReset = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
 
-  // ── Pan with drag ──────────────────────────────────────────────────────────
+  // ── Mouse: pan ────────────────────────────────────────────────────────────
   const onMouseDown = (e) => {
     if (measureMode) return;
     setDragging(true);
@@ -99,13 +111,79 @@ export default function PatternCanvas({ pattern, mobileZoomOut }) {
   };
   const onMouseUp = () => setDragging(false);
 
-  // ── Wheel zoom ────────────────────────────────────────────────────────────
+  // ── Mouse wheel: zoom ─────────────────────────────────────────────────────
   const onWheel = (e) => {
     e.preventDefault();
     setZoom((z) => Math.min(5, Math.max(0.25, z - e.deltaY * 0.001)));
   };
 
-  // ── Measure mode: click 2 points ──────────────────────────────────────────
+  // ── Touch helpers ─────────────────────────────────────────────────────────
+  const getTouchDist = (t1, t2) => {
+    const dx = t1.clientX - t2.clientX;
+    const dy = t1.clientY - t2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+  const getTouchMid = (t1, t2) => ({
+    x: (t1.clientX + t2.clientX) / 2,
+    y: (t1.clientY + t2.clientY) / 2,
+  });
+
+  // ── Touch: single-finger pan + two-finger pinch-to-zoom ───────────────────
+  const onTouchStart = (e) => {
+    if (measureMode) return;
+
+    if (e.touches.length === 2) {
+      // Pinch start – snapshot current state
+      touchState.current.lastDist = getTouchDist(e.touches[0], e.touches[1]);
+      touchState.current.lastMid  = getTouchMid(e.touches[0], e.touches[1]);
+      touchState.current.lastPan  = { ...pan };
+      touchState.current.lastZoom = zoom;
+      touchState.current.singleStart = null; // cancel single-finger mode
+    } else if (e.touches.length === 1) {
+      // Single-finger pan start
+      touchState.current.singleStart = {
+        x: e.touches[0].clientX - pan.x,
+        y: e.touches[0].clientY - pan.y,
+      };
+      touchState.current.lastDist = null;
+    }
+  };
+
+  const onTouchMove = (e) => {
+    e.preventDefault(); // block browser scroll / overscroll
+
+    if (e.touches.length === 2 && touchState.current.lastDist !== null) {
+      // ── Two-finger pinch ──────────────────────────────────────────────────
+      const newDist  = getTouchDist(e.touches[0], e.touches[1]);
+      const scale    = newDist / touchState.current.lastDist;
+      const newZoom  = Math.min(5, Math.max(0.25, touchState.current.lastZoom * scale));
+
+      // Pan tracks midpoint movement so the pinch center stays fixed
+      const mid    = getTouchMid(e.touches[0], e.touches[1]);
+      const prevMid = touchState.current.lastMid;
+      const newPan  = {
+        x: touchState.current.lastPan.x + (mid.x - prevMid.x),
+        y: touchState.current.lastPan.y + (mid.y - prevMid.y),
+      };
+
+      setZoom(newZoom);
+      setPan(newPan);
+
+    } else if (e.touches.length === 1 && touchState.current.singleStart) {
+      // ── Single-finger pan ─────────────────────────────────────────────────
+      setPan({
+        x: e.touches[0].clientX - touchState.current.singleStart.x,
+        y: e.touches[0].clientY - touchState.current.singleStart.y,
+      });
+    }
+  };
+
+  const onTouchEnd = (e) => {
+    if (e.touches.length < 2) touchState.current.lastDist = null;
+    if (e.touches.length === 0) touchState.current.singleStart = null;
+  };
+
+  // ── Measure mode ──────────────────────────────────────────────────────────
   const handlePointClick = (pt) => {
     if (!measureMode) return;
     setMeasurePts((prev) => {
@@ -156,7 +234,13 @@ export default function PatternCanvas({ pattern, mobileZoomOut }) {
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
         onWheel={onWheel}
-        style={{ cursor: measureMode ? "crosshair" : dragging ? "grabbing" : "grab" }}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        style={{
+          cursor: measureMode ? "crosshair" : dragging ? "grabbing" : "grab",
+          touchAction: "none", // hand over all touch control to our handlers
+        }}
       >
         <div
           style={{
@@ -211,15 +295,20 @@ export default function PatternCanvas({ pattern, mobileZoomOut }) {
               if (!sv) return null;
               const isMeasured = measurePts.some((mp) => mp.name === p.name);
               return (
-                <g key={p.name} style={{ cursor: measureMode ? "pointer" : "default" }}
-                   onClick={() => handlePointClick({ name: p.name, ...sv })}>
+                <g
+                  key={p.name}
+                  style={{ cursor: measureMode ? "pointer" : "default" }}
+                  onClick={() => handlePointClick({ name: p.name, ...sv })}
+                >
                   <circle
                     cx={sv.x} cy={sv.y} r={measureMode ? 5 : 3}
                     fill={isMeasured ? "var(--primary)" : "var(--primary-container)"}
                     stroke="white" strokeWidth="1"
                   />
-                  <text x={sv.x + 6} y={sv.y + 4}
-                    fontSize="7" fill="#44474a" fontFamily="monospace" fontWeight="bold">
+                  <text
+                    x={sv.x + 6} y={sv.y + 4}
+                    fontSize="7" fill="#44474a" fontFamily="monospace" fontWeight="bold"
+                  >
                     {p.name}
                   </text>
                 </g>

@@ -23,7 +23,25 @@ export const getGuestId = () => {
 async function handleResponse(res) {
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
-    const msg = err.detail || "Error desconocido";
+
+    // FastAPI/Pydantic validation errors return detail as an array of objects
+    let msg;
+    if (Array.isArray(err.detail)) {
+      // Extract the "msg" field from each validation error, or stringify the object
+      msg = err.detail
+        .map((e) => {
+          if (typeof e === "string") return e;
+          // Pydantic v2 uses e.msg, Pydantic v1 uses e.msg too
+          const field = Array.isArray(e.loc) ? e.loc.join(" → ") : null;
+          const text = e.msg || JSON.stringify(e);
+          return field ? `${field}: ${text}` : text;
+        })
+        .join("; ");
+    } else if (typeof err.detail === "object" && err.detail !== null) {
+      msg = JSON.stringify(err.detail);
+    } else {
+      msg = err.detail || err.message || "Error desconocido";
+    }
 
     // ── Token inválido / expirado → logout automático ─────────────────────
     if (res.status === 401) {
