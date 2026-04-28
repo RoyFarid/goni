@@ -89,6 +89,31 @@ function AppInner() {
     }
   };
 
+  // Touch drag-to-close handling for mobile panels
+  const [touchStartXY, setTouchStartXY] = useState(null);
+
+  const handleTouchStart = (e) => {
+    setTouchStartXY({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+  };
+
+  const handleTouchMove = (e) => {
+    if (!touchStartXY) return;
+    const currentY = e.touches[0].clientY;
+    const currentX = e.touches[0].clientX;
+    const diffY = currentY - touchStartXY.y;
+    const diffX = Math.abs(currentX - touchStartXY.x);
+
+    // If swiped down more than 30px and it's mostly a vertical swipe
+    if (diffY > 30 && diffY > diffX) {
+      setActiveMobilePanel(null);
+      setTouchStartXY(null); // prevent firing multiple times
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setTouchStartXY(null);
+  };
+
   return (
     <div className="app-shell">
       {/* ── Session expired banner ─────────────────────────────────────────── */}
@@ -212,6 +237,12 @@ function AppInner() {
             <>
               {/* Desktop: always visible. Mobile: hidden by default */}
               <div className={`desktop-panel left-panel-wrapper ${activeMobilePanel === "datos" ? "mobile-panel-open" : ""}`}>
+                <div 
+                  className="mobile-drag-handle"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                ></div>
                 <LeftPanel
                   user={activeUser}
                   templates={templates}
@@ -228,6 +259,12 @@ function AppInner() {
               <PatternCanvas pattern={pattern} mobileZoomOut={activeMobilePanel !== null} />
               {/* Desktop: always visible. Mobile: hidden by default */}
               <div className={`desktop-panel right-panel-wrapper ${activeMobilePanel === "exportar" ? "mobile-panel-open" : ""}`}>
+                <div 
+                  className="mobile-drag-handle"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                ></div>
                 <RightPanel
                   pattern={pattern}
                   templateId={selectedTemplateId}
@@ -274,9 +311,12 @@ function AppInner() {
       {activeUser && (
         <MobileBottomBar
           activePanel={activeMobilePanel}
-          onToggle={(panel) =>
-            setActiveMobilePanel((prev) => (prev === panel ? null : panel))
-          }
+          onToggle={(panel) => {
+            setActiveMobilePanel((prev) => (prev === panel ? null : panel));
+            if (panel === "datos" || panel === "exportar") {
+              setActiveView("workspace");
+            }
+          }}
           activeView={activeView}
           onLibrary={() => {
             // If biblioteca is already active → toggle back to workspace

@@ -2000,15 +2000,16 @@ body {
     display: block;
   }
 
-  /* Panel drag handle indicator */
-  .desktop-panel.mobile-panel-open::before {
-    content: "";
+  /* Panel drag handle */
+  .mobile-drag-handle {
     display: block;
     width: 40px;
     height: 4px;
     background: var(--outline-variant);
     border-radius: 2px;
-    margin: 10px auto 0;
+    margin: 10px auto;
+    cursor: grab;
+    touch-action: none;
   }
 
   /* Slide-up animation */
