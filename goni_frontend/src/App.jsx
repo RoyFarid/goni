@@ -31,7 +31,6 @@ function AppInner() {
   // Mobile drawer state: which panel is open on small screens
   const [activeMobilePanel, setActiveMobilePanel] = useState(null); // "datos" | "exportar" | "biblioteca" | null
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState(() => {
     const saved = localStorage.getItem("goni_selected_template");
@@ -76,11 +75,6 @@ function AppInner() {
   useEffect(() => {
     if (selectedProfileId) localStorage.setItem("goni_selected_profile", selectedProfileId);
   }, [selectedProfileId]);
-
-  // When session expires → open login modal automatically
-  useEffect(() => {
-    if (sessionAlert) setShowLogin(true);
-  }, [sessionAlert]);
 
   // When a real user logs in, remove guest mode
   useEffect(() => {
@@ -140,218 +134,191 @@ function AppInner() {
         </div>
       )}
 
-      {/* ── Top Nav ──────────────────────────────────────────────────────── */}
-      <header className="topnav">
-        <div className="topnav-left">
-          <span className="brand">GONI</span>
-          <nav className="topnav-links">
-            <button
-              className={`nav-link ${activeView === "workspace" ? "active" : ""}`}
-              onClick={() => setActiveView("workspace")}
-            >
-              Workspace
-            </button>
-            <button
-              className={`nav-link ${activeView === "library" ? "active" : ""}`}
-              onClick={() => setActiveView("library")}
-            >
-              Biblioteca
-            </button>
-          </nav>
-        </div>
+      {!activeUser ? (
+        <LoginPage onGuest={() => setIsGuest(true)} />
+      ) : (
+        <>
+          {/* ── Top Nav ──────────────────────────────────────────────────── */}
+          <header className="topnav">
+            <div className="topnav-left">
+              <div className="brand">
+                <img src="/brand/logo_completo_goni.png" alt="" className="brand-logo" />
+                <span>GONI</span>
+              </div>
+              <nav className="topnav-links">
+                <button
+                  className={`nav-link ${activeView === "workspace" ? "active" : ""}`}
+                  onClick={() => setActiveView("workspace")}
+                >
+                  Workspace
+                </button>
+                <button
+                  className={`nav-link ${activeView === "library" ? "active" : ""}`}
+                  onClick={() => setActiveView("library")}
+                >
+                  Biblioteca
+                </button>
+              </nav>
+            </div>
 
-        <div className="topnav-right">
-          {activeUser && (
-            <span className="tier-badge">
-              {activeUser.tier?.toUpperCase() || "GUEST"}
-            </span>
-          )}
+            <div className="topnav-right">
+              <span className="tier-badge">
+                {activeUser.tier?.toUpperCase() || "GUEST"}
+              </span>
 
-          {activeUser && (
-            <IconButton
-              icon="workspace_premium"
-              text="Mejorar Plan"
-              onClick={() => setShowPlansModal(true)}
-            />
-          )}
+              <IconButton
+                icon="workspace_premium"
+                text="Mejorar Plan"
+                onClick={() => setShowPlansModal(true)}
+              />
 
-          {activeUser ? (
-            <div className="user-menu" style={{ position: "relative" }}>
-              {/* User name button – toggles dropdown */}
-              <button
-                id="user-menu-trigger"
-                className="user-name-btn"
-                onClick={() => setShowUserMenu((v) => !v)}
-                aria-haspopup="true"
-                aria-expanded={showUserMenu}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>person</span>
-                <span className="user-name-btn-text">{activeUser.full_name || activeUser.email || "Invitado"}</span>
-                <span className="material-symbols-outlined user-name-chevron" style={{ fontSize: 16 }}>
-                  {showUserMenu ? "expand_less" : "expand_more"}
-                </span>
-              </button>
+              <div className="user-menu" style={{ position: "relative" }}>
+                {/* User name button – toggles dropdown */}
+                <button
+                  id="user-menu-trigger"
+                  className="user-name-btn"
+                  onClick={() => setShowUserMenu((v) => !v)}
+                  aria-haspopup="true"
+                  aria-expanded={showUserMenu}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>person</span>
+                  <span className="user-name-btn-text">{activeUser.full_name || activeUser.email || "Invitado"}</span>
+                  <span className="material-symbols-outlined user-name-chevron" style={{ fontSize: 16 }}>
+                    {showUserMenu ? "expand_less" : "expand_more"}
+                  </span>
+                </button>
 
-              {/* Dropdown */}
-              {showUserMenu && (
-                <>
-                  {/* Invisible backdrop to close on outside click */}
-                  <div
-                    className="user-menu-backdrop"
-                    onClick={() => setShowUserMenu(false)}
-                  />
-                  <div className="user-dropdown" role="menu">
-                    <div className="user-dropdown-header">
-                      <div className="user-dropdown-avatar">
-                        <span className="material-symbols-outlined">person</span>
+                {/* Dropdown */}
+                {showUserMenu && (
+                  <>
+                    {/* Invisible backdrop to close on outside click */}
+                    <div
+                      className="user-menu-backdrop"
+                      onClick={() => setShowUserMenu(false)}
+                    />
+                    <div className="user-dropdown" role="menu">
+                      <div className="user-dropdown-header">
+                        <div className="user-dropdown-avatar">
+                          <span className="material-symbols-outlined">person</span>
+                        </div>
+                        <div>
+                          <div className="user-dropdown-name">{activeUser.full_name || "Invitado"}</div>
+                          {activeUser.email && <div className="user-dropdown-email">{activeUser.email}</div>}
+                        </div>
                       </div>
-                      <div>
-                        <div className="user-dropdown-name">{activeUser.full_name || "Invitado"}</div>
-                        {activeUser.email && <div className="user-dropdown-email">{activeUser.email}</div>}
-                      </div>
+                      <div className="user-dropdown-divider" />
+                      {/* Future items go here */}
+                      {!user ? (
+                        <button
+                          className="user-dropdown-item"
+                          role="menuitem"
+                          onClick={() => { setShowUserMenu(false); setIsGuest(false); }}
+                        >
+                          <span className="material-symbols-outlined">login</span>
+                          Iniciar Sesión
+                        </button>
+                      ) : (
+                        <button
+                          className="user-dropdown-item user-dropdown-item--danger"
+                          role="menuitem"
+                          onClick={() => { setShowUserMenu(false); logout(); }}
+                        >
+                          <span className="material-symbols-outlined">logout</span>
+                          Cerrar Sesión
+                        </button>
+                      )}
                     </div>
-                    <div className="user-dropdown-divider" />
-                    {/* Future items go here */}
-                    {!user ? (
-                      <button
-                        className="user-dropdown-item"
-                        role="menuitem"
-                        onClick={() => { setShowUserMenu(false); setShowLogin(true); }}
-                      >
-                        <span className="material-symbols-outlined">login</span>
-                        Iniciar Sesión
-                      </button>
-                    ) : (
-                      <button
-                        className="user-dropdown-item user-dropdown-item--danger"
-                        role="menuitem"
-                        onClick={() => { setShowUserMenu(false); logout(); }}
-                      >
-                        <span className="material-symbols-outlined">logout</span>
-                        Cerrar Sesión
-                      </button>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          ) : (
-            <button className="btn-secondary" onClick={() => setShowLogin(true)}>
-              Iniciar Sesión
-            </button>
-          )}
-        </div>
-      </header>
-
-      {/* ── Main 3-column layout or Library ──────────────────────────────────── */}
-      <main className="main-layout bg-surface text-on-surface antialiased">
-        {activeUser ? (
-          activeView === "workspace" ? (
-            <>
-              {/* Desktop: always visible. Mobile: hidden by default */}
-              <div className={`desktop-panel left-panel-wrapper ${activeMobilePanel === "datos" ? "mobile-panel-open" : ""}`}>
-                <div 
-                  className="mobile-drag-handle"
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
-                ></div>
-                <LeftPanel
-                  user={activeUser}
-                  templates={templates}
-                  templateId={selectedTemplateId}
-                  onTemplateChange={(newId) => {
-                    setSelectedTemplateId(newId);
-                    setPattern(null);
-                  }}
-                  selectedProfileId={selectedProfileId}
-                  setProfileId={setSelectedProfileId}
-                  onCompute={(data) => setPattern(data)}
-                />
-              </div>
-              <PatternCanvas pattern={pattern} mobileZoomOut={activeMobilePanel !== null} />
-              {/* Desktop: always visible. Mobile: hidden by default */}
-              <div className={`desktop-panel right-panel-wrapper ${activeMobilePanel === "exportar" ? "mobile-panel-open" : ""}`}>
-                <div 
-                  className="mobile-drag-handle"
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
-                ></div>
-                <RightPanel
-                  pattern={pattern}
-                  templateId={selectedTemplateId}
-                  profileId={selectedProfileId}
-                  user={activeUser}
-                />
-              </div>
-            </>
-          ) : (
-            <Library
-              user={activeUser}
-              selectedProfileId={selectedProfileId}
-              setProfileId={setSelectedProfileId}
-              onViewPattern={(tId, pId) => handleViewPattern(tId, pId)}
-              mobileLibraryOpen={activeMobilePanel === "biblioteca"}
-            />
-          )
-        ) : (
-          <div className="not-logged">
-            <div className="not-logged-card">
-              <div className="brand-huge">G</div>
-              <h1>GONI</h1>
-              <p>Sistema de patronaje digital profesional</p>
-              <div className="not-logged-actions">
-                <IconButton
-                  icon="login"
-                  text="Iniciar Sesión"
-                  onClick={() => setShowLogin(true)}
-                  className="btn-primary large"
-                />
-                <IconButton
-                  icon="person_outline"
-                  text="Continuar como Invitado"
-                  onClick={() => setIsGuest(true)}
-                  className="btn-secondary large"
-                />
+                  </>
+                )}
               </div>
             </div>
-          </div>
-        )}
-      </main>
+          </header>
 
-      {/* ── Mobile Bottom Navigation Bar ──────────────────────────────────── */}
-      {activeUser && (
-        <MobileBottomBar
-          activePanel={activeMobilePanel}
-          onToggle={(panel) => {
-            setActiveMobilePanel((prev) => (prev === panel ? null : panel));
-            if (panel === "datos" || panel === "exportar") {
-              setActiveView("workspace");
-            }
-          }}
-          activeView={activeView}
-          onLibrary={() => {
-            // If biblioteca is already active → toggle back to workspace
-            if (activeMobilePanel === "biblioteca") {
-              setActiveView("workspace");
-            } else {
-              setActiveView("library");
-            }
-          }}
-        />
+          {/* ── Main 3-column layout or Library ─────────────────────────── */}
+          <main className="main-layout bg-surface text-on-surface antialiased">
+            {activeView === "workspace" ? (
+              <>
+                {/* Desktop: always visible. Mobile: hidden by default */}
+                <div className={`desktop-panel left-panel-wrapper ${activeMobilePanel === "datos" ? "mobile-panel-open" : ""}`}>
+                  <div
+                    className="mobile-drag-handle"
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                  ></div>
+                  <LeftPanel
+                    user={activeUser}
+                    templates={templates}
+                    templateId={selectedTemplateId}
+                    onTemplateChange={(newId) => {
+                      setSelectedTemplateId(newId);
+                      setPattern(null);
+                    }}
+                    selectedProfileId={selectedProfileId}
+                    setProfileId={setSelectedProfileId}
+                    onCompute={(data) => setPattern(data)}
+                  />
+                </div>
+                <PatternCanvas pattern={pattern} mobileZoomOut={activeMobilePanel !== null} />
+                {/* Desktop: always visible. Mobile: hidden by default */}
+                <div className={`desktop-panel right-panel-wrapper ${activeMobilePanel === "exportar" ? "mobile-panel-open" : ""}`}>
+                  <div
+                    className="mobile-drag-handle"
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                  ></div>
+                  <RightPanel
+                    pattern={pattern}
+                    templateId={selectedTemplateId}
+                    profileId={selectedProfileId}
+                    user={activeUser}
+                  />
+                </div>
+              </>
+            ) : (
+              <Library
+                user={activeUser}
+                selectedProfileId={selectedProfileId}
+                setProfileId={setSelectedProfileId}
+                onViewPattern={(tId, pId) => handleViewPattern(tId, pId)}
+                mobileLibraryOpen={activeMobilePanel === "biblioteca"}
+              />
+            )}
+          </main>
+
+          {/* ── Mobile Bottom Navigation Bar ────────────────────────────── */}
+          <MobileBottomBar
+            activePanel={activeMobilePanel}
+            onToggle={(panel) => {
+              setActiveMobilePanel((prev) => (prev === panel ? null : panel));
+              if (panel === "datos" || panel === "exportar") {
+                setActiveView("workspace");
+              }
+            }}
+            activeView={activeView}
+            onLibrary={() => {
+              // If biblioteca is already active → toggle back to workspace
+              if (activeMobilePanel === "biblioteca") {
+                setActiveView("workspace");
+              } else {
+                setActiveView("library");
+              }
+            }}
+          />
+
+          {/* ── Status bar ───────────────────────────────────────────────── */}
+          <footer className="statusbar">
+            <div className="statusbar-left">
+              <span className="ver-badge">v1.0.0-BETA</span>
+              <span>{pattern ? `Proyecto: ${pattern.template_name}` : "Sin proyecto activo"}</span>
+            </div>
+            <div className="statusbar-right">
+              <a href="#" className="statusbar-link">Documentación</a>
+            </div>
+          </footer>
+        </>
       )}
-
-      {/* ── Status bar ────────────────────────────────────────────────────── */}
-      <footer className="statusbar">
-        <div className="statusbar-left">
-          <span className="ver-badge">v1.0.0-BETA</span>
-          <span>{pattern ? `Proyecto: ${pattern.template_name}` : "Sin proyecto activo"}</span>
-        </div>
-        <div className="statusbar-right">
-          <a href="#" className="statusbar-link">Documentación</a>
-        </div>
-      </footer>
 
       {/* Membership Modal */}
       {showPlansModal && (
@@ -523,13 +490,6 @@ function AppInner() {
         </div>
       )}
 
-      {/* ── Login Modal ───────────────────────────────────────────────────── */}
-      {showLogin && (
-        <LoginPage 
-          onClose={() => { setShowLogin(false); clearAlert(); }} 
-          onGuest={() => { setIsGuest(true); setShowLogin(false); }}
-        />
-      )}
     </div>
   );
 }
