@@ -216,13 +216,6 @@ export default function Library({ user, selectedProfileId, setProfileId, onViewP
             Biblioteca de telas
           </button>
         </nav>
-
-        <div className="sidebar-footer">
-          <button className="btn-primary w-full">
-            <span className="material-symbols-outlined">add</span>
-            Nuevo Patrón
-          </button>
-        </div>
       </aside>
 
       {/* Contenido Principal */}
@@ -363,10 +356,6 @@ export default function Library({ user, selectedProfileId, setProfileId, onViewP
                         onChange={(e) => setSearchTerm(e.target.value)}
                       />
                     </div>
-                    <IconButton
-                      icon="filter_list"
-                      text="Filtro"
-                    />
                   </div>
                 </div>
 
@@ -380,11 +369,10 @@ export default function Library({ user, selectedProfileId, setProfileId, onViewP
                         <div className="pattern-card-actions">
                           <IconButton
                             icon="visibility"
+                            text="Ver"
                             onClick={() => onViewPattern && onViewPattern(t.id, selectedProfileId)}
                             title="Ver en Workspace"
                           />
-                          <IconButton icon="edit" title="Editar Patrón" />
-                          <IconButton icon="delete" title="Eliminar Patrón" />
                         </div>
                       </div>
                       <div className="pattern-card-info">

@@ -10,6 +10,19 @@ import IconButton from "./components/IconButton";
 import MobileBottomBar from "./components/MobileBottomBar";
 import "./index.css";
 
+// ─── WhatsApp: los planes de pago se gestionan manualmente por ahora ─────────
+const WHATSAPP_NUMBER = "51902152718";
+
+function openPlanWhatsApp(planLabel, benefits, userEmail) {
+  const lines = [
+    `¡Hola! Quiero el plan ${planLabel}.`,
+    `Beneficios: ${benefits}`,
+  ];
+  if (userEmail) lines.push(`Mi correo registrado en Goni es: ${userEmail}`);
+  const text = encodeURIComponent(lines.join("\n"));
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, "_blank", "noopener,noreferrer");
+}
+
 // ─── Inner app (needs auth context) ──────────────────────────────────────────
 function AppInner() {
   const { user, logout, sessionAlert, clearAlert } = useAuth();
@@ -400,7 +413,14 @@ function AppInner() {
                       <p>Motor paramétrico estándar</p>
                     </div>
                   </div>
-                  <button className="plan-btn plan-btn-secondary">
+                  <button
+                    className="plan-btn plan-btn-secondary"
+                    onClick={() => openPlanWhatsApp(
+                      "GONI NODE (Gratis)",
+                      "moldes básicos, 10 descargas y 10 impresiones mensuales, 2 perfiles de medidas.",
+                      activeUser?.email
+                    )}
+                  >
                     Comenzar Gratis
                   </button>
                 </div>
@@ -440,7 +460,14 @@ function AppInner() {
                       <p>Edición avanzada de curvas Catmull-Rom</p>
                     </div>
                   </div>
-                  <button className="plan-btn plan-btn-primary">
+                  <button
+                    className="plan-btn plan-btn-primary"
+                    onClick={() => openPlanWhatsApp(
+                      "GONI TRACE ($5/mes)",
+                      "biblioteca completa (vestidos, blazers, etc.), 30 descargas y 30 impresiones mensuales, 10 perfiles de medidas, edición avanzada de curvas Catmull-Rom.",
+                      activeUser?.email
+                    )}
+                  >
                     Mejorar a Trace
                   </button>
                 </div>
@@ -479,7 +506,14 @@ function AppInner() {
                       <p>Soporte prioritario y acceso API</p>
                     </div>
                   </div>
-                  <button className="plan-btn plan-btn-secondary">
+                  <button
+                    className="plan-btn plan-btn-secondary"
+                    onClick={() => openPlanWhatsApp(
+                      "GONI BLOCK ($25/mes)",
+                      "biblioteca completa + acceso anticipado, descargas/impresiones/perfiles ilimitados, auto-nesting y automatización de grading, soporte prioritario y acceso API.",
+                      activeUser?.email
+                    )}
+                  >
                     Mejorar a Block
                   </button>
                 </div>
