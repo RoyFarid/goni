@@ -9,4 +9,4 @@ __pycache__/
 venv/
 .env
 # Python usa estos, NO los ignores:
-# requirements.txt
+# requirements.txtscript_create_postgres.sql
