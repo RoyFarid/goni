@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { fabricsApi } from "../api/client";
 import IconButton from "./IconButton";
+import ConfirmModal from "./ConfirmModal";
 
 export default function FabricLibrary({ user }) {
   const [fabrics, setFabrics] = useState([]);
@@ -9,6 +10,8 @@ export default function FabricLibrary({ user }) {
 
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deletingFabric, setDeletingFabric] = useState(null);
+  const [deleteError, setDeleteError] = useState("");
   const [formData, setFormData] = useState({
     name: "", material: "", width_cm: "", weight_gsm: "",
     stretch_horizontal: "", stretch_vertical: "",
@@ -76,6 +79,17 @@ export default function FabricLibrary({ user }) {
       console.error("Error cargando telas:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteFabric = async () => {
+    if (!deletingFabric) return;
+    try {
+      await fabricsApi.delete(deletingFabric.id);
+      setFabrics(fabrics.filter(f => f.id !== deletingFabric.id));
+      setDeletingFabric(null);
+    } catch (err) {
+      setDeleteError(err.message || "No se pudo eliminar la tela");
     }
   };
 
@@ -148,11 +162,15 @@ export default function FabricLibrary({ user }) {
                   </div>
                 </div>
 
-                <div className="fabric-actions">
-                  <IconButton icon="edit" title="Editar Tela" />
-                  <IconButton icon="content_copy" title="Duplicar" />
-                  <IconButton icon="delete" title="Eliminar Tela" />
-                </div>
+                {f.user_id === user?.id && (
+                  <div className="fabric-actions">
+                    <IconButton
+                      icon="delete"
+                      title="Eliminar Tela"
+                      onClick={() => { setDeleteError(""); setDeletingFabric(f); }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -244,6 +262,21 @@ export default function FabricLibrary({ user }) {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!deletingFabric}
+        title="Eliminar Tela"
+        type="danger"
+        confirmText="Eliminar"
+        onConfirm={handleDeleteFabric}
+        onCancel={() => setDeletingFabric(null)}
+      >
+        <p>
+          ¿Estás seguro de eliminar la tela <strong>{deletingFabric?.name}</strong>?
+          <br />Esta acción no se puede deshacer.
+        </p>
+        {deleteError && <div className="inline-error">{deleteError}</div>}
+      </ConfirmModal>
     </section>
   );
 }

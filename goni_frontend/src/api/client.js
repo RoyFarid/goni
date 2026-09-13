@@ -226,5 +226,12 @@ export const fabricsApi = {
       headers: authHeaders(),
       body: JSON.stringify(data),
     }).then(handleResponse),
+  delete: (fabricId) =>
+    fetch(`${API_BASE}/api/fabrics/${fabricId}`, {
+      method: "DELETE",
+      headers: authHeaders(),
+    }).then((res) => {
+      if (!res.ok) return handleResponse(res);
+    }),
 };
 
