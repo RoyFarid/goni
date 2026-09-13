@@ -1,5 +1,20 @@
 # Goni – Guía de Inicio Rápido
 
+## ¿Qué es Goni?
+
+Goni es una herramienta para generar **moldes de costura básicos a partir de medidas corporales**. La idea es mantenerlo simple: el usuario ingresa sus medidas (busto, cintura, cadera, largo, etc.), elige el tipo de prenda, y la aplicación calcula automáticamente el trazado geométrico del molde y lo entrega listo para imprimir o exportar a un programa de CAD/costura industrial (DXF).
+
+No busca reemplazar un sistema de patronaje profesional completo, sino resolver el primer paso — obtener un molde base correcto — de forma rápida y sin necesidad de conocimientos de patronaje o de dibujo técnico.
+
+**Flujo actual:**
+1. El usuario ingresa sus medidas corporales en un perfil.
+2. Selecciona el tipo de prenda (plantilla) que quiere generar.
+3. Goni calcula los puntos y trazos del molde con fórmulas de patronaje configuradas en la base de datos (holgura, costura, tipo de tela, etc.).
+4. El molde se muestra en un lienzo interactivo (zoom, pan, medir distancias).
+5. Se exporta como PDF (impresión a escala) o DXF (CAD industrial).
+
+**Hacia dónde va (roadmap):** cuando un usuario tenga varios moldes guardados en su biblioteca, podrá seleccionarlos e imprimirlos todos juntos usando **nesting** (acomodo automático de piezas sobre la tela para aprovechar el material y reducir desperdicio). Este nesting ya aparece como sección "Próximamente" en la interfaz, pero todavía no está implementado.
+
 ## Estructura del Proyecto
 
 ```
