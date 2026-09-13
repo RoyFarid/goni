@@ -25,6 +25,15 @@ from dxf_generator import generate_dxf
 
 router = APIRouter(prefix="/api", tags=["patterns"])
 
+def _client_ip(request: Request) -> str:
+    """Best-effort real client IP, accounting for the reverse proxy in front of the app (e.g. Railway)."""
+    if request is None:
+        return None
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else None
+
 
 # ─── Templates ────────────────────────────────────────────────────────────────
 @router.get("/templates")
@@ -273,7 +282,11 @@ def compute_guest(template_id: int, data: GuestComputeRequest, request: Request)
     res_name, points, res_paths, technicals = _run_computation(logic, body_meas, paths, tpl["template_name"])
     
     # Log (Unlimited compute)
-    log_usage(action_type="compute", guest_id=data.guest_id, template_id=template_id, user_agent=request.headers.get("user-agent"))
+    # Log (Unlimited compute)
+    log_usage(
+        action_type="compute", guest_id=data.guest_id, template_id=template_id,
+        user_agent=request.headers.get("user-agent"), ip_address=_client_ip(request),
+    )
     
     return PatternResponse(
         template_id=template_id,
@@ -286,19 +299,20 @@ def compute_guest(template_id: int, data: GuestComputeRequest, request: Request)
 @router.post("/patterns/{template_id}/export-guest/dxf")
 def export_dxf_guest(template_id: int, data: GuestComputeRequest, request: Request):
     # Dynamic Limit Check (Guest Plan)
+    ip = _client_ip(request)
     limits = get_plan_limits("guest")
     limit = limits["max_downloads_month"] if limits else 10
-    
-    count = get_usage_count(action_type="export_dxf", guest_id=data.guest_id)
+
+    count = get_usage_count(action_type="export_dxf", guest_id=data.guest_id, ip_address=ip)
     if count >= limit:
         raise HTTPException(status_code=403, detail=f"Has alcanzado el límite de {limit} descargas gratuitas.")
-    
+
     name, logic, paths = _get_template_data(template_id)
     body_meas = {m.measurement_key: m.value_cm for m in data.measurements}
     res_name, points, res_paths, _ = _run_computation(logic, body_meas, paths, name)
-    
+
     # Log
-    log_usage(action_type="export_dxf", guest_id=data.guest_id, template_id=template_id, user_agent=request.headers.get("user-agent"))
+    log_usage(action_type="export_dxf", guest_id=data.guest_id, template_id=template_id, user_agent=request.headers.get("user-agent"), ip_address=ip)
     
     dxf_bytes = generate_dxf(points, res_paths, res_name)
     filename = f"{res_name.replace(' ', '_')}.dxf"
