@@ -63,47 +63,6 @@ CREATE DATABASE goni;
 ```
 
 > Actualiza el `DATABASE_URL` en `goni_backend/.env` con el nombre de DB `goni`.
-```
-
-### Datos de ejemplo para probar
-
-```sql
--- 1. Insertar template
-INSERT INTO pattern_templates (template_name, description, garment_category)
-VALUES ('Falda Recta Básica', 'Bloque base de falda recta', 'Bottoms');
-
--- 2. Insertar lógica de trazado (fórmulas)
--- Variables técnicas
-INSERT INTO drafting_logic (template_id, variable_name, formula, calculation_order, object_type)
-VALUES
-  (1, 'WAIST_HALF',   'waist_circ / 4',            1, 'TECHNICAL'),
-  (1, 'HIP_HALF',     'hip_circ / 4',              1, 'TECHNICAL'),
-  (1, 'HIP_LEVEL',    'waist_to_hip',              1, 'TECHNICAL');
-
--- Puntos del molde (P1...P5)
-INSERT INTO drafting_logic (template_id, variable_name, formula, calculation_order, object_type)
-VALUES
-  (1, 'P1_X', '0',               2, 'NODE_X'),
-  (1, 'P1_Y', '0',               2, 'NODE_Y'),
-  (1, 'P2_X', 'WAIST_HALF',      2, 'NODE_X'),
-  (1, 'P2_Y', '0',               2, 'NODE_Y'),
-  (1, 'P3_X', 'HIP_HALF + 1',    2, 'NODE_X'),
-  (1, 'P3_Y', 'HIP_LEVEL',       2, 'NODE_Y'),
-  (1, 'P4_X', 'HIP_HALF + 1',    2, 'NODE_X'),
-  (1, 'P4_Y', 'garment_length',  2, 'NODE_Y'),
-  (1, 'P5_X', '0',               2, 'NODE_X'),
-  (1, 'P5_Y', 'garment_length',  2, 'NODE_Y');
-
--- 3. Definir trazos (paths)
-INSERT INTO path_definitions (template_id, path_name, node_sequence, is_curve, stroke_color)
-VALUES
-  (1, 'Cintura',   '["P1","P2"]',         false, '#0f172a'),
-  (1, 'Costado',   '["P2","P3","P4"]',    true,  '#f43f5e'),
-  (1, 'Ruedo',     '["P4","P5"]',         false, '#0f172a'),
-  (1, 'Centro',    '["P5","P1"]',         false, '#0f172a');
-```
-
----
 
 ## 2. Backend (Python / FastAPI)
 
