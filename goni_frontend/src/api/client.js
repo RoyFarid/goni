@@ -167,7 +167,7 @@ export const patternsApi = {
     if (fabricId) endpoint += `&fabric_id=${fabricId}`;
     if (customSeam !== null && customSeam !== "") endpoint += `&custom_seam=${customSeam}`;
     if (customEase !== null && customEase !== "") endpoint += `&custom_ease=${customEase}`;
-    
+
     const res = await fetch(endpoint, { headers: { Authorization: `Bearer ${token}` } });
     if (!res.ok) throw new Error("Error generando DXF");
     const blob = await res.blob();
@@ -175,6 +175,28 @@ export const patternsApi = {
     const a = document.createElement("a");
     a.href = url;
     a.download = `${templateName || "molde"}.dxf`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  // ── PDF a escala 1:1, dividido en hojas según el tamaño de papel elegido ───
+  downloadPdf: async (templateId, profileId, templateName, pageSize = "A4", fabricId = "", customSeam = null, customEase = null, easeType = "regular") => {
+    const token = getToken();
+    let endpoint = `${API_BASE}/api/patterns/${templateId}/compute/${profileId}/pdf?page_size=${pageSize}&ease_type=${easeType}`;
+    if (fabricId) endpoint += `&fabric_id=${fabricId}`;
+    if (customSeam !== null && customSeam !== "") endpoint += `&custom_seam=${customSeam}`;
+    if (customEase !== null && customEase !== "") endpoint += `&custom_ease=${customEase}`;
+
+    const res = await fetch(endpoint, { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: "Error generando PDF" }));
+      throw new Error(err.detail || "Error generando PDF");
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${templateName || "molde"}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
   },
@@ -209,6 +231,25 @@ export const patternsApi = {
     const a = document.createElement("a");
     a.href = url;
     a.download = `${templateName || "molde"}.dxf`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  downloadPdfGuest: async (templateId, measurements, templateName, pageSize = "A4") => {
+    const res = await fetch(`${API_BASE}/api/patterns/${templateId}/export-guest/pdf?page_size=${pageSize}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ guest_id: getGuestId(), measurements }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: "Error" }));
+      throw new Error(err.detail || "Error generando PDF");
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${templateName || "molde"}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
   },

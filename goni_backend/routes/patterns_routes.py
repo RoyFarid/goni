@@ -22,8 +22,10 @@ from database import get_db, dict_cursor
 from schemas import PatternResponse
 from drafting_engine import evaluate_drafting_logic, extract_points, extract_technicals
 from dxf_generator import generate_dxf
+from pdf_generator import generate_tiled_pdf, PAGE_SIZES_CM
 
 router = APIRouter(prefix="/api", tags=["patterns"])
+
 
 def _client_ip(request: Request) -> str:
     """Best-effort real client IP, accounting for the reverse proxy in front of the app (e.g. Railway)."""
@@ -263,6 +265,51 @@ def export_dxf(
     )
 
 
+@router.get("/patterns/{template_id}/compute/{profile_id}/pdf")
+def export_pdf(
+    template_id: int,
+    profile_id: str,
+    request: Request,
+    page_size: str = "A4",
+    fabric_id: int = None,
+    custom_seam: float = None,
+    custom_ease: float = None,
+    ease_type: str = "regular",
+    user: dict = Depends(get_current_user),
+):
+    if page_size.upper() not in PAGE_SIZES_CM:
+        raise HTTPException(status_code=400, detail=f"Tamaño de hoja inválido. Usa uno de: {', '.join(PAGE_SIZES_CM)}")
+
+    plan_id = user.get("tier", "node")
+    limits = get_plan_limits(plan_id)
+    limit = limits["max_prints_month"] if limits else 10
+
+    count = get_usage_count(action_type="export_pdf", user_id=user["id"])
+    if count >= limit:
+        raise HTTPException(status_code=403, detail=f"Has alcanzado tu límite de {limit} impresiones mensuales.")
+
+    name, points, paths, _ = _load_and_compute(
+        template_id, profile_id, user["id"],
+        fabric_id, custom_seam, custom_ease, ease_type
+    )
+
+    log_usage(
+        action_type="export_pdf",
+        user_id=user["id"],
+        template_id=template_id,
+        user_agent=request.headers.get("user-agent"),
+        ip_address=_client_ip(request),
+    )
+
+    pdf_bytes = generate_tiled_pdf(points, paths, name, page_size=page_size)
+    filename = f"{name.replace(' ', '_')}.pdf"
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
 # ─── Guest Routes ─────────────────────────────────────────────────────────────
 
 @router.post("/patterns/{template_id}/compute-guest", response_model=PatternResponse)
@@ -280,8 +327,7 @@ def compute_guest(template_id: int, data: GuestComputeRequest, request: Request)
         body_meas["ease"] = float(tpl.get(preset_key, 2.0))
     
     res_name, points, res_paths, technicals = _run_computation(logic, body_meas, paths, tpl["template_name"])
-    
-    # Log (Unlimited compute)
+
     # Log (Unlimited compute)
     log_usage(
         action_type="compute", guest_id=data.guest_id, template_id=template_id,
@@ -313,11 +359,46 @@ def export_dxf_guest(template_id: int, data: GuestComputeRequest, request: Reque
 
     # Log
     log_usage(action_type="export_dxf", guest_id=data.guest_id, template_id=template_id, user_agent=request.headers.get("user-agent"), ip_address=ip)
-    
+
     dxf_bytes = generate_dxf(points, res_paths, res_name)
     filename = f"{res_name.replace(' ', '_')}.dxf"
     return StreamingResponse(
         io.BytesIO(dxf_bytes),
         media_type="application/dxf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post("/patterns/{template_id}/export-guest/pdf")
+def export_pdf_guest(template_id: int, data: GuestComputeRequest, request: Request, page_size: str = "A4"):
+    if page_size.upper() not in PAGE_SIZES_CM:
+        raise HTTPException(status_code=400, detail=f"Tamaño de hoja inválido. Usa uno de: {', '.join(PAGE_SIZES_CM)}")
+
+    ip = _client_ip(request)
+    limits = get_plan_limits("guest")
+    limit = limits["max_prints_month"] if limits else 10
+
+    count = get_usage_count(action_type="export_pdf", guest_id=data.guest_id, ip_address=ip)
+    if count >= limit:
+        raise HTTPException(status_code=403, detail=f"Has alcanzado el límite de {limit} impresiones gratuitas.")
+
+    tpl, logic, paths = _get_template_data(template_id)
+    body_meas = {m.measurement_key: m.value_cm for m in data.measurements}
+    body_meas["seam"] = data.custom_seam if data.custom_seam is not None else 1.0
+    if data.custom_ease is not None:
+        body_meas["ease"] = data.custom_ease
+    else:
+        preset_key = f"ease_{data.ease_type or 'regular'}_cm"
+        body_meas["ease"] = float(tpl.get(preset_key, 2.0))
+
+    res_name, points, res_paths, _ = _run_computation(logic, body_meas, paths, tpl["template_name"])
+
+    log_usage(action_type="export_pdf", guest_id=data.guest_id, template_id=template_id, user_agent=request.headers.get("user-agent"), ip_address=ip)
+
+    pdf_bytes = generate_tiled_pdf(points, res_paths, res_name, page_size=page_size)
+    filename = f"{res_name.replace(' ', '_')}.pdf"
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
