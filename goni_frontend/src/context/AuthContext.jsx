@@ -7,6 +7,22 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => authApi.currentUser());
   const [sessionAlert, setSessionAlert] = useState(null);
 
+  // ── Refresca el plan/tier desde el backend al abrir la app ──────────────
+  // El token puede vivir varias horas; si el plan del usuario cambió mientras
+  // tanto (p. ej. un upgrade aplicado manualmente en la BD), esto evita que
+  // se quede mostrando el tier viejo hasta el próximo login.
+  useEffect(() => {
+    if (!authApi.currentUser()) return;
+    authApi.me().then((data) => {
+      setUser((prev) => {
+        if (!prev) return prev;
+        const updated = { ...prev, tier: data.membership_tier, plan_name: data.plan_name, full_name: data.full_name };
+        localStorage.setItem("ep_user", JSON.stringify(updated));
+        return updated;
+      });
+    }).catch(() => { });
+  }, []);
+
   // ── Escucha 401s globales del API client ────────────────────────────────
   useEffect(() => {
     const handler = (e) => {
