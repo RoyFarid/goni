@@ -6,18 +6,21 @@ POST /api/auth/login     – returns JWT (OAuth2 password flow)
 GET  /api/auth/me        – returns current user info (protected)
 """
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
 from database import get_db, dict_cursor
 from auth import hash_password, verify_password, create_access_token, get_current_user
+from rate_limit import limiter
 from schemas import RegisterRequest, LoginResponse
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
+# Límites generosos para un usuario real pero que frenan fuerza bruta / scripts.
 @router.post("/register", status_code=201)
-def register(body: RegisterRequest):
+@limiter.limit("10/minute")
+def register(body: RegisterRequest, request: Request):
     with get_db() as conn:
         cur = dict_cursor(conn)
         # Check email uniqueness
@@ -49,7 +52,8 @@ def register(body: RegisterRequest):
 
 
 @router.post("/login", response_model=LoginResponse)
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
+@limiter.limit("5/minute")
+def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
     with get_db() as conn:
         cur = dict_cursor(conn)
         cur.execute(
