@@ -9,4 +9,7 @@ __pycache__/
 venv/
 .env
 # Python usa estos, NO los ignores:
-# requirements.txtscript_create_postgres.sql
+# requirements.txt
+
+# Esquema de la BD: sin secretos, pero no hace falta exponerlo públicamente
+script_create_postgres.sql
